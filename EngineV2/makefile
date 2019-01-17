@@ -5,4 +5,4 @@ output_dir	=./Output
 output_name	=Engine.o
 
 all:
-	gcc -lstdc++ -lglfw -lGL -lGLEW  $(src_dir)/*.cpp -o $(output_dir)/$(output_name
+	gcc -lstdc++ -lglfw -lGL -lGLEW  $(src_dir)/*.cpp -o $(output_dir)/$(output_name)
