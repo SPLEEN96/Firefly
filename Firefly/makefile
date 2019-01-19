@@ -8,13 +8,13 @@
 #all: main.cpp --> target: dependencies
 #############CHEAT SHEET##################
 
-COMPILER		:=gcc
-OUTPUT			:=Engine.out
-INCLUDES		:=-I./Lib/spdlog/include/ -I./Src
-FLAGS			:=-g -Wall
-LFLAGS			:=-lstdc++ -lglfw -lGL -lGLEW
-SOURCES			:=$(wildcard ./Src/Firefly/*.cpp)
-OBJS			:=$(SOURCES:.cpp=.o)
+COMPILER	:=gcc
+OUTPUT		:=Engine.out
+INCLUDES	:=-I./Lib/spdlog/include/ -I./Src
+FLAGS		:=-g -Wall
+LFLAGS		:=-lstdc++ -lglfw -lGL -lGLEW
+SOURCES		:=$(wildcard ./Src/Firefly/*.cpp)
+OBJS		:=$(SOURCES:.cpp=.o)
 
 src_dir		:=./Src/Firefly
 output_dir	:=./Output
