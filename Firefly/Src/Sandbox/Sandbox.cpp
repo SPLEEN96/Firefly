@@ -1,4 +1,4 @@
-#include "../Firefly.h"
+#include "Firefly.h"
 
 class Sandbox : public Firefly::Application {
   public:

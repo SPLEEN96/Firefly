@@ -1,5 +1,5 @@
 LIBRARY		=-lstdc++ -lglfw -lGL -lGLEW 
-INCLUDE		=-I./Lib/spdlog/include/ #-I/another/path
+INCLUDE		=-I./Lib/spdlog/include/ -I./Src
 FLAGS		=-g
 
 src_dir		=./Src
