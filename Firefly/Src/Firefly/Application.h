@@ -1,5 +1,5 @@
 #pragma once
-#include "../Firefly.h"
+#include "Firefly.h"
 
 namespace Firefly {
 
