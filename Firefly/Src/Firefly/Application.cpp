@@ -2,14 +2,17 @@
 
 namespace Firefly {
 
-Application::Application() {}
-Application::~Application() {}
-
-void Application::Run() {
-    while (true) {
-    }
+Application::Application() {
+}
+Application::~Application() {
 }
 
-Application* CreateApplication() {}
+void Application::Run() {
+    // while (true) {
+    //}
+}
 
-}  // namespace Firefly
+Application *CreateApplication() {
+}
+
+} // namespace Firefly

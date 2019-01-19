@@ -1,11 +1,11 @@
 #include "../Firefly.h"
 
 class Sandbox : public Firefly::Application {
-   public:
+  public:
     Sandbox() {}
     ~Sandbox() {}
 };
 
-Firefly::Application* CreateApplication() { 
+Firefly::Application *CreateApplication() {
     return new Sandbox();
- }
+}

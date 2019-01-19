@@ -6,7 +6,7 @@
 namespace Firefly {
 
 class Logger {
-   public:
+  public:
     Logger();
     ~Logger();
     static void Init();
@@ -18,32 +18,31 @@ class Logger {
         return m_client_logger;
     }
 
-   private:
+  private:
     static std::shared_ptr<spdlog::logger> m_core_logger;
     static std::shared_ptr<spdlog::logger> m_client_logger;
 };
 
-}  // namespace Firefly
+} // namespace Firefly
 
-#define FFLY_LOG_CORE_TRACE(...) \
+#define FFLY_LOG_CORE_TRACE(...)                                               \
     Firefly::Logger::GetCoreLogger()->trace(__VA_ARGS__)
-#define FFLY_LOG_CORE_INFO(...) \
+#define FFLY_LOG_CORE_INFO(...)                                                \
     Firefly::Logger::GetCoreLogger()->info(__VA_ARGS__)
-#define FFLY_LOG_CORE_WARN(...) \
+#define FFLY_LOG_CORE_WARN(...)                                                \
     Firefly::Logger::GetCoreLogger()->warn(__VA_ARGS__)
-#define FFLY_LOG_CORE_ERROR(...) \
+#define FFLY_LOG_CORE_ERROR(...)                                               \
     Firefly::Logger::GetCoreLogger()->error(__VA_ARGS__)
-#define FFLY_LOG_CORE_CRITICAL(...) \
+#define FFLY_LOG_CORE_CRITICAL(...)                                            \
     Firefly::Logger::GetCoreLogger()->critical(__VA_ARGS__)
 
-
-#define FFLY_LOG_APP_TRACE(...) \
+#define FFLY_LOG_APP_TRACE(...)                                                \
     Firefly::Logger::GetClientLogger()->trace(__VA_ARGS__)
-#define FFLY_LOG_APP_INFO(...) \
+#define FFLY_LOG_APP_INFO(...)                                                 \
     Firefly::Logger::GetClientLogger()->info(__VA_ARGS__)
-#define FFLY_LOG_APP_WARN(...) \
+#define FFLY_LOG_APP_WARN(...)                                                 \
     Firefly::Logger::GetClientLogger()->warn(__VA_ARGS__)
-#define FFLY_LOG_APP_ERROR(...) \
+#define FFLY_LOG_APP_ERROR(...)                                                \
     Firefly::Logger::GetClientLogger()->error(__VA_ARGS__)
-#define FFLY_LOG_APP_CRITICAL(...) \
+#define FFLY_LOG_APP_CRITICAL(...)                                             \
     Firefly::Logger::GetClientLogger()->critical(__VA_ARGS__)

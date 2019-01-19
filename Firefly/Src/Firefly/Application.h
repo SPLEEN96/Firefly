@@ -1,16 +1,16 @@
-
 #pragma once
+#include "../Firefly.h"
 
 namespace Firefly {
 
 class Application {
-   public:
+  public:
     Application();
     virtual ~Application();
 
     void Run();
 };
 
-Application* CreateApplication();
+Application *CreateApplication();
 
-}  // namespace Firefly
+} // namespace Firefly
