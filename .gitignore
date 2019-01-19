@@ -1,3 +1,5 @@
 /Firefly/.vscode
 /Firefly/Output/
 /Firefly/Firefly.code-workspace
+*.d
+*.o
