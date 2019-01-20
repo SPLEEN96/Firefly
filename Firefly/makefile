@@ -40,6 +40,7 @@ $(OUTPUT): $(OBJS)
 $(OBJS): %.o: %.cpp $(PCH_OUT)
 	$(COMPILER) $(INCLUDES) $(FLAGS) $(LFLAGS)  -MD -MP -c $< -o $@
 
+#Precompiles the PCH source files
 $(PCH_OUT): $(PCH_SOURCE)
 	$(COMPILER) $(FLAGS) $< -o $(PCH_OUT)
 
