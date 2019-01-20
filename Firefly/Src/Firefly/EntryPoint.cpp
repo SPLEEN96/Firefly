@@ -1,7 +1,5 @@
-//#include "../Firefly.h"
-#include "Application.h"
-#include "Logger.h"
-#include <iostream>
+#include "PCH_CORE.h"
+#include "Firefly.h"
 
 //#define FF_PLATFORM_LINUX
 //#ifdef FF_PLATFORM_LINUX
