@@ -3,3 +3,4 @@
 /Firefly/Firefly.code-workspace
 *.d
 *.o
+*.h.gch
