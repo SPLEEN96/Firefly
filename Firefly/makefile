@@ -13,7 +13,7 @@ COMPILER	:=g++
 OUTPUT		:=Engine.out
 INCLUDES	:=-I./Lib/spdlog/include/ -I./Src
 FLAGS		:=-std=c++11 -g -Wall
-LFLAGS		:=#-lglfw -lGL -lGLEW
+LFLAGS		:=-lglfw -lGL -lGLEW
 SOURCES		:=$(shell find ./Src -name '*.cpp')
 OBJS		:=$(SOURCES:.cpp=.o)
 PCH_SOURCE	:=./Src/PCH_CORE.h
