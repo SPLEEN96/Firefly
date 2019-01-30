@@ -9,7 +9,7 @@ class Event {
     Event();
     ~Event();
 
-    EventType GetType() { return m_type; }
+    const EventType &GetType() const { return m_type; }
 
   private:
     EventType m_type;
