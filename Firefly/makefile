@@ -14,7 +14,7 @@ OUTPUT		:=Engine.out
 INCLUDES	:=-I./Lib/spdlog/include/ -I./Src
 FLAGS		:=-std=c++11 -g -Wall
 LFLAGS		:=#-lglfw -lGL -lGLEW
-SOURCES		:=$(wildcard ./Src/Firefly/*.cpp)
+SOURCES		:=$(shell find ./Src -name '*.cpp')
 OBJS		:=$(SOURCES:.cpp=.o)
 PCH_SOURCE	:=./Src/PCH_CORE.h
 PCH_OUT		:=$(PCH_SOURCE).gch
