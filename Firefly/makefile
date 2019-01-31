@@ -19,7 +19,6 @@ OBJS		:=$(SOURCES:.cpp=.o)
 PCH_SOURCE	:=./Src/PCH_CORE.h
 PCH_OUT		:=$(PCH_SOURCE).gch
 
-src_dir		:=./Src/Firefly
 output_dir	:=./Output
 
 
@@ -42,7 +41,7 @@ $(OBJS): %.o: %.cpp $(PCH_OUT)
 
 #Precompiles the PCH source files
 $(PCH_OUT): $(PCH_SOURCE)
-	$(COMPILER) $(FLAGS) $< -o $(PCH_OUT)
+	$(COMPILER) $(INCLUDES) $(FLAGS) $< -o $(PCH_OUT)
 
 
 -include $(OBJS:.o=.d) #replaces the .o by .d
