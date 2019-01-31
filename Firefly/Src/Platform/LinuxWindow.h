@@ -18,6 +18,7 @@ class LinuxWindow : public Window {
     virtual void SetEventCallbackFn(bool (*CallbackFn)(const Event& e)) {
         m_data.EventCallbackFn = CallbackFn;
     }
+
     const ui32& GetWidth() const override { return m_data.Width; }
     const ui32& GetHeight() const override { return m_data.Height; }
 

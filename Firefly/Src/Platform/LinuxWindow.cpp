@@ -36,6 +36,31 @@ void LinuxWindow::Initialize() {
     glfwSetWindowUserPointer(m_window, &m_data);
 }
 
+void LinuxWindow::OnUpdate() {
+    glfwPollEvents();
+    glfwSwapBuffers(m_window);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void LinuxWindow::InitGLFWCallbacks() {
     glfwSetErrorCallback(GLFWErrorCallback);
 
@@ -59,17 +84,17 @@ void LinuxWindow::InitGLFWCallbacks() {
                                     int action, int modes) {
         WinData& data = *(WinData*)glfwGetWindowUserPointer(window);
         switch (action) {
-        case GLFW_PRESS:{
+        case GLFW_PRESS: {
             KeyPressedEvent e(key, 0);
             data.EventCallbackFn(e);
             break;
         }
-        case GLFW_RELEASE:{
+        case GLFW_RELEASE: {
             KeyReleasedEvent e(key);
             data.EventCallbackFn(e);
             break;
         }
-        case GLFW_REPEAT:{
+        case GLFW_REPEAT: {
             KeyPressedEvent e(key, 1);
             data.EventCallbackFn(e);
             break;
@@ -105,11 +130,6 @@ void LinuxWindow::InitGLFWCallbacks() {
             // MouseMovedEvent e((float)xPos, (float)yPos);
             // data.EventCallbackFn(e);
         });
-}
-
-void LinuxWindow::OnUpdate() {
-    glfwPollEvents();
-    glfwSwapBuffers(m_window);
 }
 
 } // namespace Firefly

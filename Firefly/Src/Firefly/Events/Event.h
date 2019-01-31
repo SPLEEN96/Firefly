@@ -4,8 +4,8 @@
 
 namespace Firefly {
 
-enum class EventType {
-    NONE = 0,
+enum EventType {
+    E_NONE = 0,
     E_WINDOW_CLOSE,
     E_WINDOW_RESIZE,
     E_WINDOW_FOCUS,
@@ -22,8 +22,9 @@ enum class EventType {
     E_MOUSE_MOVED,
     E_MOUSE_SCROLLED
 };
+
 enum EventCategory {
-    NONE                  = 0,
+    ECATEGORY_NONE        = 0,
     ECATEGORY_APPLICATION = BIT(0),
     ECATEGORY_INPUT       = BIT(1),
     ECATEGORY_KEYBOARD    = BIT(2),
@@ -31,29 +32,41 @@ enum EventCategory {
     ECATEGORY_MOUSEBUTTON = BIT(4)
 };
 
-#define EVENT_CLASS_TYPE(type)                                                 \
-    static const EventType   GetStaticType() { return EventType::type; }     \
-    virtual const EventType& GetType() const override {                        \
-        return GetStaticType();                                                \
-    }                                                                          \
-    virtual const char* GetName() const override { return #type; }
-
-#define EVENT_CLASS_CATEGORY(category)                                         \
-    virtual const ui8& GetCategoryFlags() const override { return category; }
-
-
-
 class Event {
     friend class EventDispatcher;
 
   public:
-    virtual const EventType& GetType() const          = 0;
-    virtual const ui8&       GetCategoryFlags() const = 0;
-    virtual const char*      GetName() const          = 0;
-    virtual std::string      ToString() const         = 0;
+    virtual const EventType& GetType() const { return m_type; }
+    virtual const ui8&       GetCategoryFlags() const { return m_category; }
+    virtual const char*      GetName() const { return EventNames[m_type]; }
+    virtual std::string      ToString() const = 0;
+
+  protected:
+    Event(EventType type = E_NONE, EventCategory category = ECATEGORY_NONE)
+        : m_type(type), m_category(category) {}
+
+    const EventType     m_type;
+    const EventCategory m_category;
 
   private:
     bool m_handled = false;
+
+    const char* EventNames[16]{"None",
+                             "WindowClosed",
+                             "WindowResize",
+                             "WindowFocus",
+                             "WindoWLostFocus",
+                             "WindowMoved",
+                             "AppTick",
+                             "AppUpdate",
+                             "AppRender",
+                             "KeyPressed",
+                             "KeyReleased",
+                             "KeyTyped",
+                             "MouseButtonPressed",
+                             "MouseButtonReleased",
+                             "MouseMoved",
+                             "MouseScrolled"};
 };
 
 class EventDispatcher {};

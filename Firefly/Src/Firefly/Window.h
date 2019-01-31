@@ -1,5 +1,4 @@
 #pragma once
-#include "Firefly/Events/Event.h"
 #include "Firefly/Events/KeyEvents.h"
 //#include "Firefly/Events/MouseEvents.h"
 #include "PCH_CORE.h"
@@ -19,6 +18,7 @@ struct WinAttributes {
 /* Platform independant Window Interface */
 class Window {
   public:
+    static Window* Create(const WinAttributes& attributes = WinAttributes());
     virtual ~Window() {}
 
     virtual void Initialize() = 0;
@@ -28,8 +28,6 @@ class Window {
 
     virtual const ui32& GetWidth() const  = 0;
     virtual const ui32& GetHeight() const = 0;
-
-    static Window* Create(const WinAttributes& attributes = WinAttributes());
 };
 
 } // namespace Firefly
