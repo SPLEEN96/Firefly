@@ -37,7 +37,7 @@ class Event {
 
   public:
     virtual const EventType& GetType() const { return m_type; }
-    virtual const ui8&       GetCategoryFlags() const { return m_category; }
+    virtual const uint8&     GetCategoryFlags() const { return m_category; }
     virtual const char*      GetName() const { return EventNames[m_type]; }
     virtual std::string      ToString() const = 0;
 
@@ -52,21 +52,21 @@ class Event {
     bool m_handled = false;
 
     const char* EventNames[16]{"None",
-                             "WindowClosed",
-                             "WindowResize",
-                             "WindowFocus",
-                             "WindoWLostFocus",
-                             "WindowMoved",
-                             "AppTick",
-                             "AppUpdate",
-                             "AppRender",
-                             "KeyPressed",
-                             "KeyReleased",
-                             "KeyTyped",
-                             "MouseButtonPressed",
-                             "MouseButtonReleased",
-                             "MouseMoved",
-                             "MouseScrolled"};
+                               "WindowClosed",
+                               "WindowResize",
+                               "WindowFocus",
+                               "WindoWLostFocus",
+                               "WindowMoved",
+                               "AppTick",
+                               "AppUpdate",
+                               "AppRender",
+                               "KeyPressed",
+                               "KeyReleased",
+                               "KeyTyped",
+                               "MouseButtonPressed",
+                               "MouseButtonReleased",
+                               "MouseMoved",
+                               "MouseScrolled"};
 };
 
 class EventDispatcher {};
