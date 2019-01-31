@@ -15,9 +15,9 @@ typedef uint8_t  uint8;
 #ifdef FFLY_ASSERT_ENABLED
 #define FFLY_ASSERT(x, ...)                                                    \
     {                                                                          \
-        if (!x) {                                                              \
+        if ((!x)) {                                                            \
             FFLY_LOG_CORE_ERROR("Assertion Failed: {0}", __VA_ARGS__);         \
-            __builtin_trap();                                                  \
+            *(int*)0 = 0;                                                      \
         }                                                                      \
     }
 #else
@@ -26,3 +26,7 @@ typedef uint8_t  uint8;
 #endif
 
 #define BIT(x) (1 << x)
+
+#define Kilobytes(x) ((x)*1024)
+#define Megabytes(x) (Kilobytes(x) * 1024)
+#define Gigabytes(x) (Megabytes(x) * 1024)
