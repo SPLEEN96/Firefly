@@ -19,8 +19,8 @@ class LinuxWindow : public Window {
         m_data.EventCallbackFn = CallbackFn;
     }
 
-    const ui32& GetWidth() const override { return m_data.Width; }
-    const ui32& GetHeight() const override { return m_data.Height; }
+    const uint32& GetWidth() const override { return m_data.Width; }
+    const uint32& GetHeight() const override { return m_data.Height; }
 
   private:
     GLFWwindow* m_window;
