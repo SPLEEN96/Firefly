@@ -1,5 +1,4 @@
 #include "PCH_CORE.h"
-#include "Logger.h"
 
 namespace Firefly {
 
@@ -12,7 +11,7 @@ Logger::~Logger() {
 }
 
 void Logger::Init() {
-    spdlog::set_pattern("%^[%T] %n: %v%$"); /* Timestamp Name : Message */
+    spdlog::set_pattern("%^[%T] %n: %v%$"); /* [Timestamp] Name : Message */
 
     m_core_logger = spdlog::stdout_color_mt("FIREFLY");
     m_core_logger->set_level(spdlog::level::level_enum::trace);
