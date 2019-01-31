@@ -9,6 +9,7 @@ Application::Application() {
     m_running = true;
     m_window  = std::unique_ptr<Window>(Window::Create());
     m_window->SetEventCallbackFn(([](const Event& e) {
+        FFLY_LOG_CORE_TRACE("{0}",e.ToString());
         return true;
     }));
 }
@@ -25,8 +26,6 @@ void Application::Run() {
 }
 
 bool Application::OnEvent(const Event& e) {
-    FFLY_LOG_APP_TRACE("TESTOUILLE");
-    return true;
 }
 
 Application* CreateApplication() {
