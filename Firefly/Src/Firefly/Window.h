@@ -1,33 +1,51 @@
 #pragma once
-#include "Firefly/Events/KeyEvents.h"
-//#include "Firefly/Events/MouseEvents.h"
+#include "FFLY_CORE.h"
 #include "PCH_CORE.h"
+
+#include "Firefly/Events/Event.h"
+#include "Firefly/Events/KeyEvents.h"
 
 namespace Firefly {
 
-struct WinAttributes {
-    WinAttributes(const std::string& title = "Firefly",
-                  const uint32& width = 1280, const uint32& height = 720)
-        : Title(title), Width(width), Height(height) {}
+struct WindowData {
+    friend struct Window;
 
+    uint8       Handle;
     std::string Title;
-    uint32      Width;
-    uint32      Height;
+    int         Width;
+    int         Height;
+    bool (*EventCallbackFn)(const Event& e);
+
+  private:
+    union {
+        /* LINUX_DATA */
+        struct {
+            void* Window;
+        } linux;
+
+        /* WINDOW_DATA */
+        struct {
+            void* Window;
+        } win32;
+    };
 };
 
-/* Platform independant Window Interface */
-class Window {
-  public:
-    static Window* Create(const WinAttributes& attributes = WinAttributes());
-    virtual ~Window() {}
+struct Window {
+    static Window* Create(std::string title, uint16 width, uint16 height);
+    void           Initialize();
+    void           OnUpdate();
 
-    virtual void Initialize() = 0;
-    virtual void OnUpdate()   = 0;
+    void SetEventCallbackFn(bool(CallbackFn)(const Event& e)) {
+        Data().EventCallbackFn = CallbackFn;
+    }
+    WindowData& Data() {
+        return m_data;
+        // return MemoryManager::WinData(DataHandle);
+    }
 
-    virtual void SetEventCallbackFn(bool(CallbackFn)(const Event& e)) = 0;
-
-    virtual const uint32& GetWidth() const  = 0;
-    virtual const uint32& GetHeight() const = 0;
+  private:
+    uint8      DataHandle;
+    WindowData m_data;
 };
 
 } // namespace Firefly
