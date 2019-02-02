@@ -3,8 +3,8 @@
 #define FFLY_LINUX
 #ifdef FFLY_LINUX
 /* ======================== LINUX IMPLEMENTATION ======================== */
-#include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <glad/glad.h>
 
 namespace Firefly {
 
@@ -50,6 +50,11 @@ void Window::Initialize() {
     GLFWwindow* window = static_cast<GLFWwindow*>(this->Data().linux.Window);
 
     glfwMakeContextCurrent(window);
+
+    /* ================== GLAD =================== */
+    FFLY_ASSERT(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress),
+                "Failed to initialize glad");
+
     glfwSetWindowUserPointer(window, &this->Data());
 
     FFLY_LOG_CORE_INFO("Created Window {0} ({1}, {2})", this->Data().Title,
