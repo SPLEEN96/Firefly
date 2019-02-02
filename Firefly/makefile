@@ -9,15 +9,24 @@
 #all: main.cpp --> target: dependencies
 #############CHEAT SHEET##################
 
-COMPILER	:=g++
+CC			:=gcc
+CXX			:=g++
 OUTPUT		:=Engine.out
-INCLUDES	:=-I./Lib/spdlog/include/ -I./Src
-FLAGS		:=-std=c++11 -g -Wall
-LFLAGS		:=-lglfw -lGL -lGLEW
-SOURCES		:=$(shell find ./Src -name '*.cpp')
-OBJS		:=$(SOURCES:.cpp=.o)
-PCH_SOURCE	:=./Src/PCH_CORE.h
-PCH_OUT		:=$(PCH_SOURCE).gch
+INCLUDES	:=-I./Src -I./Lib/ -I./Lib/spdlog/include/ -I./Lib/glad/include/
+CFLAGS 		:=-g -Wall
+CXXFLAGS	:=-std=c++11 -g -Wall
+LFLAGS		:=-lglfw -lGL -ldl
+DEFINES		:=-DDFFLY_LINUX -DGLFW_INCLUDE_NONE
+CXXFLAGS	+=$(DEFINES)
+
+SOURCES			:=$(shell find ./Src -name '*.cpp')
+SOURCES_CXXDEP	:=Lib/imgui/imgui.cpp Lib/imgui/imgui_demo.cpp Lib/imgui/imgui_draw.cpp Lib/imgui/imgui_widgets.cpp
+SOURCES_CDEP	:=Lib/glad/src/glad.c
+OBJS			:=$(SOURCES:.cpp=.o)
+OBJS_CXXDEP		:=$(SOURCES_CXXDEP:.cpp=.o)
+OBJS_CDEP		:=$(SOURCES_CDEP:.c=.o)
+PCH_SOURCE		:=./Src/PCH_CORE.h
+PCH_OUT			:=$(PCH_SOURCE).gch
 
 output_dir	:=./Output
 
@@ -25,23 +34,34 @@ output_dir	:=./Output
 #Compiles everything without cleanup
 default: $(OUTPUT)
 #Compiles everything and clean
-fresh: $(OUTPUT) clean
-#Removes all .o and .d files
+fresh: $(OUTPUT) clean cleandep
+#Removes all .o and .d files of firefly source
 clean: 
 	rm -f $(OBJS) $(OBJS:.o=.d)
+#Removes all .o and .d files of firefly dependencies
+cleandep:
+	rm -f $(OBJS_CXXDEP) $(OBJS_CXXDEP:.o=.d) $(OBJS_CDEP) $(OBJS_CDEP:.o=.d)
 
 
 #Links and Compiles Objects into Executable
-$(OUTPUT): $(OBJS)
-	$(COMPILER) $(FLAGS) $(LFLAGS) $^ -o $(output_dir)/$@
+$(OUTPUT): $(OBJS) $(OBJS_CDEP)
+	$(CXX) $(CXXFLAGS) $(LFLAGS) $^ -o $(output_dir)/$@
 
 #Compiles every SourceFiles into Objects with pattern rule
 $(OBJS): %.o: %.cpp $(PCH_OUT)
-	$(COMPILER) $(INCLUDES) $(FLAGS) $(LFLAGS)  -MD -MP -c $< -o $@
+	$(CXX) $(INCLUDES) $(CXXFLAGS) $(LFLAGS) -MD -MP -c $< -o $@
+
+#Compiles every c++ libraries into Objects with pattern rule
+$(OBJS_CXXDEP): %.o: %.cpp
+	$(CXX) $(INCLUDES) $(CXXFLAGS) $(LFLAGS) -MD -MP -c $< -o $@
+
+#Compiles every c libraries into Objects with pattern rule
+$(OBJS_CDEP): %.o: %.c
+	$(CXX) $(INCLUDES) $(CFLAGS) $(LFLAGS) -MD -MP -c $< -o $@
 
 #Precompiles the PCH source files
 $(PCH_OUT): $(PCH_SOURCE)
-	$(COMPILER) $(INCLUDES) $(FLAGS) $< -o $(PCH_OUT)
+	$(CXX) $(INCLUDES) $(CXXFLAGS) $< -o $(PCH_OUT)
 
 
 -include $(OBJS:.o=.d) #replaces the .o by .d
