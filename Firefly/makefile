@@ -44,7 +44,7 @@ cleandep:
 
 
 #Links and Compiles Objects into Executable
-$(OUTPUT): $(OBJS) $(OBJS_CDEP)
+$(OUTPUT): $(OBJS) $(OBJS_CXXDEP) $(OBJS_CDEP)
 	$(CXX) $(CXXFLAGS) $(LFLAGS) $^ -o $(output_dir)/$@
 
 #Compiles every SourceFiles into Objects with pattern rule
