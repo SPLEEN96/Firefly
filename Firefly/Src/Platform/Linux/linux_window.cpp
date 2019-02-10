@@ -3,8 +3,10 @@
 #define FFLY_LINUX
 #ifdef FFLY_LINUX
 /* ======================== LINUX IMPLEMENTATION ======================== */
+//#include "Platform/imgui_opengl.h"
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
+//#include <imgui/imgui.h>
 
 namespace Firefly {
 
@@ -41,6 +43,7 @@ Window* Window::Create(std::string title, uint16 width, uint16 height) {
 void InitGLFWCallbacks(GLFWwindow* window);
 void Window::Initialize() {
     FFLY_ASSERT(glfwInit(), "Failed to init GLFW");
+
     (this->Data().linux.Window) =
         glfwCreateWindow(this->Data().Width, this->Data().Height,
                          this->Data().Title.c_str(), nullptr, nullptr);
@@ -50,17 +53,14 @@ void Window::Initialize() {
     GLFWwindow* window = static_cast<GLFWwindow*>(this->Data().linux.Window);
 
     glfwMakeContextCurrent(window);
-
-    /* ================== GLAD =================== */
-    FFLY_ASSERT(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress),
-                "Failed to initialize glad");
-
     glfwSetWindowUserPointer(window, &this->Data());
+    InitGLFWCallbacks(window);
 
     FFLY_LOG_CORE_INFO("Created Window {0} ({1}, {2})", this->Data().Title,
                        this->Data().Width, this->Data().Height);
 
-    InitGLFWCallbacks(window);
+    FFLY_ASSERT(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress),
+                "Failed to initialize glad");
 }
 
 void Window::OnUpdate() {
@@ -87,21 +87,57 @@ void InitGLFWCallbacks(GLFWwindow* window) {
         switch (action) {
         case GLFW_PRESS: {
             KeyPressedEvent e(key, 0);
+            data.CallbackFn(e);
             data.EventCallbackFn(e);
             break;
         }
         case GLFW_RELEASE: {
             KeyReleasedEvent e(key);
+            data.CallbackFn(e);
             data.EventCallbackFn(e);
             break;
         }
         case GLFW_REPEAT: {
             KeyPressedEvent e(key, 1);
+            data.CallbackFn(e);
             data.EventCallbackFn(e);
             break;
         }
         }
     });
+
+    glfwSetCharCallback(window, [](GLFWwindow* window, unsigned int keycode) {
+        WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+        KeyTypedEvent e(keycode);
+        data.CallbackFn(e);
+    });
+
+    glfwSetMouseButtonCallback(
+        window, [](GLFWwindow* window, int button, int action, int modes) {
+            WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+            switch (action) {
+            case GLFW_PRESS: {
+                MouseButtonPressedEvent e(button);
+                data.CallbackFn(e);
+                data.EventCallbackFn(e);
+                break;
+            }
+            case GLFW_RELEASE: {
+                MouseButtonReleasedEvent e(button);
+                data.CallbackFn(e);
+                data.EventCallbackFn(e);
+                break;
+            }
+            }
+        });
+
+    glfwSetCursorPosCallback(
+        window, [](GLFWwindow* window, double xPos, double yPos) {
+            WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+            MouseMovedEvent e((float)xPos, (float)yPos);
+            data.CallbackFn(e);
+            data.EventCallbackFn(e);
+        });
 }
 } // namespace Firefly
 
