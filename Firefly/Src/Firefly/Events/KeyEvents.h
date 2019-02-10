@@ -25,8 +25,8 @@ class KeyPressedEvent : public KeyEvent {
                 << "repeats)";
         return sstream.str();
     }
-
-    const int16& GetRepeatCount() const { return m_repeat_count; }
+    static const EventType& GetStaticType() { return E_KEY_PRESSED; }
+    const int16&            GetRepeatCount() const { return m_repeat_count; }
 
   private:
     int16 m_repeat_count;
@@ -41,6 +41,27 @@ class KeyReleasedEvent : public KeyEvent {
         sstream << "KeyReleasedEvent:" << m_keycode;
         return sstream.str();
     }
+    static const EventType& GetStaticType() { return E_KEY_RELEASED; }
 };
+
+class KeyTypedEvent : public KeyEvent {
+  public:
+    KeyTypedEvent(uint16 keycode) : KeyEvent(E_KEY_TYPED, keycode) {}
+
+    std::string ToString() const override {
+        std::stringstream sstream;
+        sstream << "KeyPressedEvent:" << m_keycode;
+        return sstream.str();
+    }
+    static const EventType& GetStaticType() { return E_KEY_PRESSED; }
+};
+
+// struct KeyEventStruct {
+//     union {
+//         /* Key Pressed */
+//         struct {} key_pressed;
+//         struct {} key_released;
+//     };
+// };
 
 } // namespace Firefly

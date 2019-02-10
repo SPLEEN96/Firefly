@@ -69,11 +69,26 @@ class Event {
                                "MouseScrolled"};
 };
 
-class EventDispatcher {};
 
-class EventHandler {
+class EventDispatcher {
   public:
-    static void SetupGLFWEvents() {}
+    EventDispatcher(Event& e) : m_event(e) {}
+
+    bool Dispatch(EventType e_type, bool(EventFn)(Event* e)) {
+        if (m_event.GetType() == e_type) {
+            EventFn(&m_event);
+            return true;
+        }
+        return false;
+    }
+
+  private:
+    Event& m_event;
 };
+
+// class EventHandler {
+//   public:
+//     static void SetupGLFWEvents() {}
+// };
 
 } // namespace Firefly
