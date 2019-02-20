@@ -15,8 +15,11 @@ Application::Application() {
         // m_gui->OnEvent(e);
         return true;
     }));
-    m_window->BindEventCallBackFn(std::bind(&Application::OnEvent, this, std::placeholders::_1));
+    m_window->BindEventCallBackFn(
+        std::bind(&Application::OnEvent, this, std::placeholders::_1));
     m_gui = new GUI();
+
+    m_rmodule.Load(*m_window);
 }
 Application::~Application() {
 }
@@ -37,6 +40,5 @@ bool Application::OnEvent(Event& e) {
 
 Application* CreateApplication() {
 }
-
 
 } // namespace Firefly

@@ -3,6 +3,8 @@
 #include "Firefly/FFLYImgui.h"
 #include "Firefly/Window.h"
 
+#include "Rendering/RenderModule.h"
+
 namespace Firefly {
 
 class Application {
@@ -18,6 +20,8 @@ class Application {
   private:
     std::unique_ptr<Window> m_window;
     GUI*                    m_gui;
+    Rendering::RenderModule m_rmodule;
+    
     bool                    m_running;
 };
 
