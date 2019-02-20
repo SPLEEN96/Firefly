@@ -12,7 +12,7 @@
 CC			:=gcc
 CXX			:=g++
 OUTPUT		:=Engine.out
-INCLUDES	:=-I./Src -I./Lib/ -I./Lib/spdlog/include/ -I./Lib/glad/include/
+INCLUDES	:=-I./Src -I./Lib/ -I./Lib/spdlog/include/ -I./Lib/glad/include/ -I./Lib/vulkan/x86_64/include/
 CFLAGS 		:=-g -Wall
 CXXFLAGS	:=-std=c++11 -g -Wall
 LFLAGS		:=-lglfw -lGL -ldl
