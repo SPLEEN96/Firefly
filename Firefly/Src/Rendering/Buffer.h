@@ -38,7 +38,7 @@ struct Buffer {
     /*
      * Unmap MappedMemory (Can't fail)
      */
-    void Unmap() {
+    void UnmapMemory() {
         if (MappedMemory) {
             vkUnmapMemory(Device, Memory);
         }
