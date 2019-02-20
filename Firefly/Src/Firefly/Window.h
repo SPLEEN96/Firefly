@@ -49,6 +49,8 @@ struct Window {
         // return MemoryManager::WinData(DataHandle);
     }
 
+    bool ShouldClose();
+
   private:
     uint8      DataHandle;
     WindowData m_data;

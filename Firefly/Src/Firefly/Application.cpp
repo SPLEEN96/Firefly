@@ -18,6 +18,8 @@ Application::Application() {
     m_window->BindEventCallBackFn(
         std::bind(&Application::OnEvent, this, std::placeholders::_1));
     m_gui = new GUI();
+
+    m_rmodule.Load(*m_window);
 }
 Application::~Application() {
 }
