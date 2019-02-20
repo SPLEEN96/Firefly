@@ -15,7 +15,8 @@ Application::Application() {
         // m_gui->OnEvent(e);
         return true;
     }));
-    m_window->BindEventCallBackFn(std::bind(&Application::OnEvent, this, std::placeholders::_1));
+    m_window->BindEventCallBackFn(
+        std::bind(&Application::OnEvent, this, std::placeholders::_1));
     m_gui = new GUI();
 }
 Application::~Application() {
@@ -27,6 +28,10 @@ void Application::Run() {
         m_gui->OnUpdate(m_window->Data().Width, m_window->Data().Height);
         m_window->OnUpdate();
         glClear(GL_COLOR_BUFFER_BIT);
+
+        if (m_window->ShouldClose()) {
+            m_running = false;
+        }
     }
     m_running = false;
 }
@@ -37,6 +42,5 @@ bool Application::OnEvent(Event& e) {
 
 Application* CreateApplication() {
 }
-
 
 } // namespace Firefly
