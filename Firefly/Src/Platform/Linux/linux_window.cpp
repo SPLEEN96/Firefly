@@ -43,6 +43,7 @@ Window* Window::Create(std::string title, uint16 width, uint16 height) {
 void InitGLFWCallbacks(GLFWwindow* window);
 void Window::Initialize() {
     FFLY_ASSERT(glfwInit(), "Failed to init GLFW");
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
     (this->Data().linux.Window) =
         glfwCreateWindow(this->Data().Width, this->Data().Height,

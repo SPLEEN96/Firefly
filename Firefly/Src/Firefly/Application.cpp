@@ -7,7 +7,7 @@ namespace Firefly {
 
 Application::Application() {
     m_running = true;
-    m_window  = std::unique_ptr<Window>(Window::Create("Firefly", 960, 960));
+    m_window  = std::unique_ptr<Window>(Window::Create("Firefly", 1280, 720));
     m_window->SetEventCallbackFn(([](Event& e) {
         // FFLY_LOG_CORE_TRACE("{0}", e.ToString());
         // EventDispatcher test(e);
