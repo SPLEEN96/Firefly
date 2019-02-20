@@ -8,14 +8,15 @@
 #-MD -MP automatically generates dependency files (.d) (has to be included in makefile)
 #all: main.cpp --> target: dependencies
 #############CHEAT SHEET##################
+VULKAN_SDK_PATH	:=./Lib/vulkan/x86_64
 
 CC			:=gcc
 CXX			:=g++
 OUTPUT		:=Engine.out
-INCLUDES	:=-I./Src -I./Lib/ -I./Lib/spdlog/include/ -I./Lib/glad/include/
+INCLUDES	:=-I./Src -I./Lib/ -I./Lib/spdlog/include/ -I./Lib/glad/include/  -I$(VULKAN_SDK_PATH)/include/
 CFLAGS 		:=-g -Wall
 CXXFLAGS	:=-std=c++11 -g -Wall
-LFLAGS		:=-lglfw -lGL -ldl
+LFLAGS		:=-lglfw -L$(VULKAN_SDK_PATH)/lib -lvulkan -lGL -ldl
 DEFINES		:=-DDFFLY_LINUX -DGLFW_INCLUDE_NONE
 CXXFLAGS	+=$(DEFINES)
 
