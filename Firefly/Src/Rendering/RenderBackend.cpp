@@ -1,11 +1,10 @@
 #include "RenderBackend.h"
+#include "PCH_CORE.h"
 
 namespace Firefly {
 namespace Rendering {
-	
-const char* debug_layer[]{
-	"VK_LAYER_LUNARG_standard_validation"
-};
+
+const char* debug_layers[]{"VK_LAYER_LUNARG_standard_validation"};
 
 void RenderBackend::_CreateInstance() {
     VkApplicationInfo app_info  = {VK_STRUCTURE_TYPE_APPLICATION_INFO};
@@ -17,8 +16,8 @@ void RenderBackend::_CreateInstance() {
 
     VkInstanceCreateInfo create_info = {VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO};
     create_info.pApplicationInfo     = &app_info;
-    create_info.enabledLayerCount    = sizeof(debug_layer) / sizeof(char*);
-    create_info.ppEnabledLayerNames  = debug_layer;
+    create_info.enabledLayerCount    = sizeof(debug_layers) / sizeof(char*);
+    create_info.ppEnabledLayerNames  = debug_layers;
 
     VK_ASSERT(vkCreateInstance(&create_info, nullptr, &_instance),
               "Failed to create Vulkan Instance.");

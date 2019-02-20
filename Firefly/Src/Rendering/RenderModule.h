@@ -1,8 +1,5 @@
 #pragma once
-#include "RENDER_CORE.h"
 #include "RenderBackend.h"
-
-#include "Firefly/Window.h"
 
 namespace Firefly {
 namespace Rendering {

@@ -1,6 +1,6 @@
 #pragma once
 #include "FFLY_CORE.h"
-#include "PCH_CORE.h"
+
 #include "vulkan/vulkan.h"
 
 namespace Firefly {
