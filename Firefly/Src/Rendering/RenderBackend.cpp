@@ -162,6 +162,15 @@ void _CreateSwapchain() {
  *
  *
  */
+/* === === === === === === CleanUp === === === === === === */
+void RenderBackend::_CleanUp() {
+    vkDestroyDevice(_device, nullptr);
+    DestroyDebugUtilsMessengerEXT(_instance, _debug_messenger, nullptr);
+    vkDestroySurfaceKHR(_instance, _surface, nullptr);
+    vkDestroyInstance(_instance, nullptr);
+}
+/* ===  ===  === === === === === === === === */
+
 /* === === === === === === Debug Layer === === === === === === */
 void RenderBackend::_SetupDebugLayer() {
     VkDebugUtilsMessengerCreateInfoEXT create_info = {
@@ -180,6 +189,19 @@ void RenderBackend::_SetupDebugLayer() {
               "Failed to Setup Vulkan Debug Messenger");
 }
 
+static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
+    VkDebugUtilsMessageSeverityFlagBitsEXT      message_severity,
+    VkDebugUtilsMessageTypeFlagsEXT             message_type,
+    const VkDebugUtilsMessengerCallbackDataEXT* p_callback_data, void* p_user_data) {
+
+    const char* message = p_callback_data->pMessage;
+    if (message_severity < VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
+        FFLY_LOG_CORE_INFO("VULKAN::Validation Layer: {0}", message);
+    } else {
+        FFLY_LOG_CORE_ERROR("VULKAN::Validation Layer: {0}", message);
+    }
+    return VK_FALSE;
+}
 VkResult CreateDebugUtilsMessengerEXT(
     VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
     const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pMessenger) {
@@ -193,18 +215,14 @@ VkResult CreateDebugUtilsMessengerEXT(
         return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
 }
-static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
-    VkDebugUtilsMessageSeverityFlagBitsEXT      message_severity,
-    VkDebugUtilsMessageTypeFlagsEXT             message_type,
-    const VkDebugUtilsMessengerCallbackDataEXT* p_callback_data, void* p_user_data) {
-
-    const char* message = p_callback_data->pMessage;
-    if (message_severity < VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
-        FFLY_LOG_CORE_INFO("VULKAN::Validation Layer: {0}", message);
-    } else {
-        FFLY_LOG_CORE_ERROR("VULKAN::Validation Layer: {0}", message);
+void DestroyDebugUtilsMessengerEXT(VkInstance                   instance,
+                                   VkDebugUtilsMessengerEXT     messenger,
+                                   const VkAllocationCallbacks* pAllocator) {
+    auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
+        instance, "vkDestroyDebugUtilsMessengerEXT");
+    if (func != nullptr) {
+        func(instance, messenger, pAllocator);
     }
-    return VK_FALSE;
 }
 /* ===  ===  === === === === === === */
 

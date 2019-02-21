@@ -17,9 +17,7 @@ class RenderBackend {
     }
 
     ~RenderBackend() {
-        vkDestroyDevice(_device, nullptr);
-        vkDestroySurfaceKHR(_instance, _surface, nullptr);
-        vkDestroyInstance(_instance, nullptr);
+        _CleanUp();
     }
 
   private:
@@ -41,6 +39,7 @@ class RenderBackend {
     /* === Debug Layer === */
     void _SetupDebugLayer();
     /* ===  ===  === === === */
+    void _CleanUp();
 
   private:
     VkInstance               _instance;
@@ -51,13 +50,17 @@ class RenderBackend {
 };
 
 /* Functions for the debug layer */
-VkResult CreateDebugUtilsMessengerEXT(
-    VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
-    const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pMessenger);
+
 static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
     VkDebugUtilsMessageSeverityFlagBitsEXT      message_severity,
     VkDebugUtilsMessageTypeFlagsEXT             message_type,
     const VkDebugUtilsMessengerCallbackDataEXT* p_callback_data, void* p_user_data);
+VkResult CreateDebugUtilsMessengerEXT(
+    VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+    const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pMessenger);
+void DestroyDebugUtilsMessengerEXT(VkInstance                   instance,
+                                   VkDebugUtilsMessengerEXT     messenger,
+                                   const VkAllocationCallbacks* pAllocator);
 
 } // namespace Rendering
 } // namespace Firefly
