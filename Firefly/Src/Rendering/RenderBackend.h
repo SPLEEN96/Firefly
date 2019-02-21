@@ -14,7 +14,7 @@ class RenderBackend {
     }
 
     ~RenderBackend() {
-        // vkDestroyDevice
+        vkDestroyDevice(_device, nullptr);
         vkDestroySurfaceKHR(_instance, _surface, nullptr);
         vkDestroyInstance(_instance, nullptr);
     }
@@ -30,7 +30,7 @@ class RenderBackend {
   private:
     void _CreateInstance();
     void _QueryRequiredExtensions();
-    void _SetupDebugLayer();
+    
     void _CreateSurface(Window window);
     /* === Physical Devices === */
     void _PickPhysicalDevice();
@@ -39,8 +39,13 @@ class RenderBackend {
                             uint32& presentation_index);
     void _CreateLogicalDevice();
     /* ===  ===  === === === */
-    void _CreateSwapChain();
+    /* === Swapchain === */
+    void _CreateSwapchain();
+    /* ===  ===  === === === */
     void _CreateImageViews();
+    /* === Debug Layer === */
+    void _SetupDebugLayer();
+    /* ===  ===  === === === */
 
   private:
     VkInstance               _instance;

@@ -41,23 +41,6 @@ void RenderBackend::_QueryRequiredExtensions() {
     extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 }
 
-void RenderBackend::_SetupDebugLayer() {
-    VkDebugUtilsMessengerCreateInfoEXT create_info = {
-        VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT};
-    create_info.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
-                                  VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
-                                  VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-    create_info.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
-                              VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-                              VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-    create_info.pfnUserCallback = DebugCallback;
-    create_info.pUserData       = nullptr;
-
-    VK_ASSERT(CreateDebugUtilsMessengerEXT(_instance, &create_info, nullptr,
-                                           &_debug_messenger),
-              "Failed to Setup Vulkan Debug Messenger");
-}
-
 void RenderBackend::_CreateSurface(Window window) {
     VK_ASSERT(glfwCreateWindowSurface(
                   _instance, static_cast<GLFWwindow*>(window.GetPlatformWindow()),
@@ -65,7 +48,7 @@ void RenderBackend::_CreateSurface(Window window) {
               "Failed to create Vulkan Surface.");
 }
 
-/* === === === === Physical Devices === === === === */
+/* === === === === === === Physical Devices === === === === === === */
 void RenderBackend::_PickPhysicalDevice() {
     uint32 dev_count = 0;
     vkEnumeratePhysicalDevices(_instance, &dev_count, nullptr);
@@ -166,19 +149,37 @@ void RenderBackend::_CreateLogicalDevice() {
     VK_ASSERT(vkCreateDevice(_physical_dev, &create_info, nullptr, &_device),
               "Failed to create Logical Device.");
 }
-/* ===  ===  === === === === === === */
+/* ===  ===  === === === === === === === ===*/
 
-/* === === === === Swapchain === === === === */
-void _CreateSwapChain() {
+/* === === === === === === Swapchain === === === === === === */
+void _CreateSwapchain() {
     VkSwapchainKHR           swapchain;
     VkSwapchainCreateInfoKHR create_info = {VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR};
 }
-/* ===  ===  === === === === === === */
+/* ===  ===  === === === === === === === === */
 
 /*
  *
  *
  */
+/* === === === === === === Debug Layer === === === === === === */
+void RenderBackend::_SetupDebugLayer() {
+    VkDebugUtilsMessengerCreateInfoEXT create_info = {
+        VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT};
+    create_info.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+                                  VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+                                  VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+    create_info.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+                              VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+                              VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+    create_info.pfnUserCallback = DebugCallback;
+    create_info.pUserData       = nullptr;
+
+    VK_ASSERT(CreateDebugUtilsMessengerEXT(_instance, &create_info, nullptr,
+                                           &_debug_messenger),
+              "Failed to Setup Vulkan Debug Messenger");
+}
+
 VkResult CreateDebugUtilsMessengerEXT(
     VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
     const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pMessenger) {
@@ -205,6 +206,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
     }
     return VK_FALSE;
 }
+/* ===  ===  === === === === === === */
 
 } // namespace Rendering
 } // namespace Firefly
