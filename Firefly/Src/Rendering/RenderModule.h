@@ -5,10 +5,7 @@ namespace Firefly {
 namespace Rendering {
 class RenderModule {
   public:
-    void Load(Window window) {
-        RenderBackend backend = RenderBackend::GetInstance();
-        backend.Init(window);
-    }
+    void Load(Window window) { RenderBackend::GetInstance().Init(window); }
 };
 } // namespace Rendering
 } // namespace Firefly
