@@ -14,11 +14,10 @@ class RenderBackend {
         _CreateSurface(window);
         _PickPhysicalDevice();
         _CreateLogicalDevice();
+        _CreateSwapchain(window);
     }
 
-    ~RenderBackend() {
-        _CleanUp();
-    }
+    ~RenderBackend() { _CleanUp(); }
 
   private:
     void _CreateInstance();
@@ -33,7 +32,13 @@ class RenderBackend {
     void _CreateLogicalDevice();
     /* ===  ===  === === === */
     /* === Swapchain === */
-    void _CreateSwapchain();
+    void _CreateSwapchain(Window window);
+    void _ChooseSwapchainSurfaceFormat(std::vector<VkSurfaceFormatKHR>& format);
+    void _ChooseSwapchainPresentMode(std::vector<VkPresentModeKHR>& present_mode);
+    void _QuerySwapchainSupport(VkSurfaceCapabilitiesKHR*        available_capabilities,
+                                std::vector<VkSurfaceFormatKHR>* available_formats,
+                                std::vector<VkPresentModeKHR>* available_present_modes);
+
     /* ===  ===  === === === */
     void _CreateImageViews();
     /* === Debug Layer === */
@@ -46,6 +51,12 @@ class RenderBackend {
     VkSurfaceKHR             _surface;
     VkPhysicalDevice         _physical_dev;
     VkDevice                 _device;
+    VkQueue                  _graphics_queue;
+    VkQueue                  _present_queue;
+    VkSwapchainKHR           _swapchain;
+    std::vector<VkImage>     _swapchain_images;
+    VkFormat                 _swapchain_img_format;
+    VkExtent2D               _swapchain_extent;
     VkDebugUtilsMessengerEXT _debug_messenger;
 };
 

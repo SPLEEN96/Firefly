@@ -148,14 +148,120 @@ void RenderBackend::_CreateLogicalDevice() {
 
     VK_ASSERT(vkCreateDevice(_physical_dev, &create_info, nullptr, &_device),
               "Failed to create Logical Device.");
+
+    vkGetDeviceQueue(_device, graphics_family_index, 0, &_graphics_queue);
+    vkGetDeviceQueue(_device, present_family_index, 0, &_present_queue);
 }
 /* ===  ===  === === === === === === === ===*/
 
 /* === === === === === === Swapchain === === === === === === */
-void _CreateSwapchain() {
-    VkSwapchainKHR           swapchain;
+void RenderBackend::_CreateSwapchain(Window window) {
+    VkSurfaceCapabilitiesKHR        capabilities;
+    std::vector<VkSurfaceFormatKHR> format;
+    std::vector<VkPresentModeKHR>   present_mode;
+    _QuerySwapchainSupport(&capabilities, nullptr, nullptr);
+    _ChooseSwapchainSurfaceFormat(format);
+    _ChooseSwapchainPresentMode(present_mode);
+
+    uint32 graphics_family_index, present_family_index;
+    _FindQueueFamilies(_physical_dev, graphics_family_index, present_family_index);
+    std::vector<uint32> indices = {graphics_family_index, present_family_index};
+
+    uint32 image_count = 2;
+
     VkSwapchainCreateInfoKHR create_info = {VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR};
+    create_info.surface                  = _surface;
+    create_info.minImageCount            = image_count;
+    create_info.imageFormat              = format[0].format;
+    create_info.imageColorSpace          = format[0].colorSpace;
+    create_info.imageExtent.width        = window.Data().Width;
+    create_info.imageExtent.height       = window.Data().Height;
+    create_info.imageArrayLayers         = 1;
+    create_info.imageUsage               = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+    if (graphics_family_index != present_family_index) {
+        create_info.imageSharingMode      = VK_SHARING_MODE_CONCURRENT;
+        create_info.queueFamilyIndexCount = 2;
+        create_info.pQueueFamilyIndices   = indices.data();
+    } else {
+        create_info.imageSharingMode      = VK_SHARING_MODE_EXCLUSIVE;
+        create_info.queueFamilyIndexCount = 0;
+        create_info.pQueueFamilyIndices   = nullptr;
+    }
+    create_info.presentMode    = present_mode[0];
+    create_info.preTransform   = capabilities.currentTransform;
+    create_info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+    create_info.clipped        = VK_TRUE;
+    create_info.oldSwapchain   = VK_NULL_HANDLE;
+
+    VK_ASSERT(vkCreateSwapchainKHR(_device, &create_info, nullptr, &_swapchain),
+              "Failed to create Swapchain.");
+
+    vkGetSwapchainImagesKHR(_device, _swapchain, &image_count, nullptr);
+    _swapchain_images.resize(image_count);
+    vkGetSwapchainImagesKHR(_device, _swapchain, &image_count, _swapchain_images.data());
+
+    _swapchain_img_format = format[0].format;
 }
+
+void RenderBackend::_ChooseSwapchainSurfaceFormat(
+    std::vector<VkSurfaceFormatKHR>& formats) {
+    _QuerySwapchainSupport(nullptr, &formats, nullptr);
+
+    if (formats.size() == 1 && formats[0].format == VK_FORMAT_UNDEFINED) {
+        formats[0] = {VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR};
+        return;
+    }
+    for (const auto& format : formats) {
+        if (format.format == VK_FORMAT_B8G8R8A8_UNORM &&
+            format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+            formats.resize(1);
+            formats[0] = format;
+            return;
+        }
+    }
+    formats.resize(1);
+}
+
+void RenderBackend::_ChooseSwapchainPresentMode(
+    std::vector<VkPresentModeKHR>& present_mode) {
+    present_mode.resize(1);
+    present_mode[0] = VK_PRESENT_MODE_FIFO_KHR;
+}
+
+void RenderBackend::_QuerySwapchainSupport(
+    VkSurfaceCapabilitiesKHR*        available_capabilities,
+    std::vector<VkSurfaceFormatKHR>* available_formats,
+    std::vector<VkPresentModeKHR>*   available_present_modes) {
+
+    /* Capabilities */
+    if (available_capabilities != nullptr) {
+        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(_physical_dev, _surface,
+                                                  available_capabilities);
+    }
+
+    /* Supported Formats */
+    if (available_formats != nullptr) {
+        uint32 format_count;
+        vkGetPhysicalDeviceSurfaceFormatsKHR(_physical_dev, _surface, &format_count,
+                                             nullptr);
+        FFLY_ASSERT(format_count, "No Surface Formats supported by Device");
+        available_formats->resize(format_count);
+        vkGetPhysicalDeviceSurfaceFormatsKHR(_physical_dev, _surface, &format_count,
+                                             available_formats->data());
+    }
+
+    /* Present Modes */
+    if (available_present_modes != nullptr) {
+        uint32 pres_mode_count;
+        vkGetPhysicalDeviceSurfacePresentModesKHR(_physical_dev, _surface,
+                                                  &pres_mode_count, nullptr);
+        FFLY_ASSERT(pres_mode_count, "No Surface Present Mode supported by Device");
+        available_present_modes->resize(pres_mode_count);
+        vkGetPhysicalDeviceSurfacePresentModesKHR(
+            _physical_dev, _surface, &pres_mode_count, available_present_modes->data());
+    }
+}
+
 /* ===  ===  === === === === === === === === */
 
 /*
@@ -164,6 +270,7 @@ void _CreateSwapchain() {
  */
 /* === === === === === === CleanUp === === === === === === */
 void RenderBackend::_CleanUp() {
+    vkDestroySwapchainKHR(_device, _swapchain, nullptr);
     vkDestroyDevice(_device, nullptr);
     DestroyDebugUtilsMessengerEXT(_instance, _debug_messenger, nullptr);
     vkDestroySurfaceKHR(_instance, _surface, nullptr);
