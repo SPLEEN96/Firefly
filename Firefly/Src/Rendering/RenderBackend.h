@@ -3,10 +3,6 @@
 
 #include "Firefly/Window.h"
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-#include <GLFW/glfw3native.h>
-
 namespace Firefly {
 namespace Rendering {
 
@@ -53,6 +49,15 @@ class RenderBackend {
     VkDevice                 _device;
     VkDebugUtilsMessengerEXT _debug_messenger;
 };
+
+/* Functions for the debug layer */
+VkResult CreateDebugUtilsMessengerEXT(
+    VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+    const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pMessenger);
+static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
+    VkDebugUtilsMessageSeverityFlagBitsEXT      message_severity,
+    VkDebugUtilsMessageTypeFlagsEXT             message_type,
+    const VkDebugUtilsMessengerCallbackDataEXT* p_callback_data, void* p_user_data);
 
 } // namespace Rendering
 } // namespace Firefly

@@ -2,39 +2,16 @@
 
 #include "PCH_CORE.h"
 
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+#include <GLFW/glfw3native.h>
+
 namespace Firefly {
 namespace Rendering {
 
 std::vector<const char*> extensions;
 std::vector<const char*> device_extensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 std::vector<const char*> debug_layers      = {"VK_LAYER_LUNARG_standard_validation"};
-
-VkResult CreateDebugUtilsMessengerEXT(
-    VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
-    const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pMessenger) {
-
-    auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
-        instance, "vkCreateDebugUtilsMessengerEXT");
-
-    if (func != nullptr) {
-        return func(instance, pCreateInfo, pAllocator, pMessenger);
-    } else {
-        return VK_ERROR_EXTENSION_NOT_PRESENT;
-    }
-}
-static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
-    VkDebugUtilsMessageSeverityFlagBitsEXT      message_severity,
-    VkDebugUtilsMessageTypeFlagsEXT             message_type,
-    const VkDebugUtilsMessengerCallbackDataEXT* p_callback_data, void* p_user_data) {
-
-    const char* message = p_callback_data->pMessage;
-    if (message_severity < VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
-        FFLY_LOG_CORE_INFO("VULKAN::Validation Layer: {0}", message);
-    } else {
-        FFLY_LOG_CORE_ERROR("VULKAN::Validation Layer: {0}", message);
-    }
-    return VK_FALSE;
-}
 
 void RenderBackend::_CreateInstance() {
     VkApplicationInfo app_info  = {VK_STRUCTURE_TYPE_APPLICATION_INFO};
@@ -191,16 +168,43 @@ void RenderBackend::_CreateLogicalDevice() {
 }
 /* ===  ===  === === === === === === */
 
-// void _CreateSwapChain() {
-//     VkSwapchainKHR           swapchain;
-//     VkSwapchainCreateInfoKHR create_info =
-//     {VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR}; create_info.
-// }
+/* === === === === Swapchain === === === === */
+void _CreateSwapChain() {
+    VkSwapchainKHR           swapchain;
+    VkSwapchainCreateInfoKHR create_info = {VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR};
+}
+/* ===  ===  === === === === === === */
 
 /*
  *
  *
  */
+VkResult CreateDebugUtilsMessengerEXT(
+    VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+    const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pMessenger) {
+
+    auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
+        instance, "vkCreateDebugUtilsMessengerEXT");
+
+    if (func != nullptr) {
+        return func(instance, pCreateInfo, pAllocator, pMessenger);
+    } else {
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
+}
+static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
+    VkDebugUtilsMessageSeverityFlagBitsEXT      message_severity,
+    VkDebugUtilsMessageTypeFlagsEXT             message_type,
+    const VkDebugUtilsMessengerCallbackDataEXT* p_callback_data, void* p_user_data) {
+
+    const char* message = p_callback_data->pMessage;
+    if (message_severity < VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
+        FFLY_LOG_CORE_INFO("VULKAN::Validation Layer: {0}", message);
+    } else {
+        FFLY_LOG_CORE_ERROR("VULKAN::Validation Layer: {0}", message);
+    }
+    return VK_FALSE;
+}
 
 } // namespace Rendering
 } // namespace Firefly
