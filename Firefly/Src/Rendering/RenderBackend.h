@@ -8,17 +8,6 @@ namespace Rendering {
 
 class RenderBackend {
   public:
-    static RenderBackend& GetInstance() {
-        static RenderBackend instance;
-        return instance;
-    }
-
-    ~RenderBackend() {
-        vkDestroyDevice(_device, nullptr);
-        vkDestroySurfaceKHR(_instance, _surface, nullptr);
-        vkDestroyInstance(_instance, nullptr);
-    }
-
     void Init(Window window) {
         _CreateInstance();
         _SetupDebugLayer();
@@ -27,10 +16,16 @@ class RenderBackend {
         _CreateLogicalDevice();
     }
 
+    ~RenderBackend() {
+        vkDestroyDevice(_device, nullptr);
+        vkDestroySurfaceKHR(_instance, _surface, nullptr);
+        vkDestroyInstance(_instance, nullptr);
+    }
+
   private:
     void _CreateInstance();
     void _QueryRequiredExtensions();
-    
+
     void _CreateSurface(Window window);
     /* === Physical Devices === */
     void _PickPhysicalDevice();
