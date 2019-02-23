@@ -1,4 +1,4 @@
-#include "RenderBackend.h"
+#include "Rendering/RenderBackend.h"
 
 #include "PCH_CORE.h"
 
@@ -156,6 +156,7 @@ void RenderBackend::_CreateLogicalDevice() {
 
 /* === === === === === === Swapchain === === === === === === */
 void RenderBackend::_CreateSwapchain(Window window) {
+    _swapchain_extent = {window.Data().Width, window.Data().Height};
     VkSurfaceCapabilitiesKHR        capabilities;
     std::vector<VkSurfaceFormatKHR> format;
     std::vector<VkPresentModeKHR>   present_mode;
@@ -174,8 +175,8 @@ void RenderBackend::_CreateSwapchain(Window window) {
     create_info.minImageCount            = image_count;
     create_info.imageFormat              = format[0].format;
     create_info.imageColorSpace          = format[0].colorSpace;
-    create_info.imageExtent.width        = window.Data().Width;
-    create_info.imageExtent.height       = window.Data().Height;
+    create_info.imageExtent.width        = _swapchain_extent.width;
+    create_info.imageExtent.height       = _swapchain_extent.height;
     create_info.imageArrayLayers         = 1;
     create_info.imageUsage               = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
     if (graphics_family_index != present_family_index) {
@@ -212,7 +213,8 @@ void RenderBackend::_ChooseSwapchainSurfaceFormat(
         return;
     }
     for (const auto& format : formats) {
-        if (format.format == VK_FORMAT_B8G8R8A8_UNORM &&
+        if (((format.format == VK_FORMAT_B8G8R8A8_UNORM) ||
+             (format.format == VK_FORMAT_R16G16B16A16_SFLOAT)) &&
             format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
             formats.resize(1);
             formats[0] = format;
@@ -261,8 +263,93 @@ void RenderBackend::_QuerySwapchainSupport(
             _physical_dev, _surface, &pres_mode_count, available_present_modes->data());
     }
 }
+/* ===  ===  === === === === === === === ===*/
 
-/* ===  ===  === === === === === === === === */
+/* === === === === === === PIPELINE === === === === === === */
+void RenderBackend::_CreateRenderPass() {
+    std::array<VkAttachmentDescription, 1> attachment_descrpt = {};
+    /* Color */
+    attachment_descrpt[0].format         = _swapchain_img_format;
+    attachment_descrpt[0].samples        = VK_SAMPLE_COUNT_1_BIT;
+    attachment_descrpt[0].loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    attachment_descrpt[0].storeOp        = VK_ATTACHMENT_STORE_OP_STORE;
+    attachment_descrpt[0].stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    attachment_descrpt[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    attachment_descrpt[0].initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;
+    attachment_descrpt[0].finalLayout    = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    /* Depth */
+    // attachment_descrpt[1].format         = VK_FORMAT_D32_SFLOAT;
+    // attachment_descrpt[1].samples        = VK_SAMPLE_COUNT_1_BIT;
+    // attachment_descrpt[1].loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    // attachment_descrpt[1].storeOp        = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    // attachment_descrpt[1].stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    // attachment_descrpt[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    // attachment_descrpt[1].initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;
+    // attachment_descrpt[1].finalLayout =
+    // VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+    /* Attachment References */
+    std::array<VkAttachmentReference, 1> attachment_refs;
+    attachment_refs[0].attachment = 0;
+    attachment_refs[0].layout     = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    // attachment_refs[1].attachment = 1;
+    // attachment_refs[1].layout     = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+    /* Subpass */
+    VkSubpassDescription subpass = {};
+    subpass.pipelineBindPoint    = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    subpass.colorAttachmentCount = 1;
+    subpass.pColorAttachments    = &attachment_refs[0];
+    // subpass.pDepthStencilAttachment = &attachment_refs[1];
+
+    /* Attachment Layout Transition (TODO) */
+    // VkSubpassDependency dependency;
+    // VkSubpassDependency dependency = {};
+    // dependency.srcSubpass          = VK_SUBPASS_EXTERNAL;
+    // dependency.dstSubpass          = 0;
+    // dependency.srcStageMask        = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    // dependency.srcAccessMask       = 0;
+    // dependency.dstStageMask        = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    // dependency.dstAccessMask =
+    //     VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+    /* Renderpass */
+    VkRenderPassCreateInfo renderpass_info = {VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO};
+    renderpass_info.attachmentCount = static_cast<uint32>(attachment_descrpt.size());
+    renderpass_info.pAttachments    = attachment_descrpt.data();
+    renderpass_info.subpassCount    = 1;
+    renderpass_info.pSubpasses      = &subpass;
+    renderpass_info.dependencyCount = 0;
+    // renderpass_info.pDependencies   = &dependency;
+
+    VkRenderPass renderpass;
+    VK_ASSERT(vkCreateRenderPass(_device, &renderpass_info, nullptr, &renderpass),
+              "Failed to create RenderPass.");
+    _renderpass.push_back(renderpass);
+}
+/* ===  ===  === === === === === === === ===*/
+
+/* === === === === === === Presentation === === === === === === */
+void RenderBackend::_CreatePresentationObjects() {
+    uint32 img_count = _swapchain_images.size();
+    _color_attachments.resize(img_count);
+    swapchain_framebuffers.resize(img_count);
+
+    /* Depth Image */
+
+    /* Color ImageViews and Framebuffers */
+    for (uint32 i = 0; i < img_count; i++) {
+        Presentation::CreateAttachment(
+            _device, &_swapchain_images[i], _swapchain_img_format,
+            VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, _color_attachments[i]);
+        Presentation::CreateFramebuffer(_device, _renderpass[0], _swapchain_extent,
+                                        _color_attachments[i], _depth_attachment,
+                                        swapchain_framebuffers[i]);
+    }
+}
+/* ===  ===  === === === === === === === ===*/
+
+
 
 /*
  *

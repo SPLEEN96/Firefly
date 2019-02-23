@@ -1,5 +1,6 @@
 #pragma once
-#include "RENDER_CORE.h"
+#include "Rendering/PresentationObjects.h"
+#include "Rendering/RENDER_CORE.h"
 
 #include "Firefly/Window.h"
 
@@ -15,7 +16,11 @@ class RenderBackend {
         _PickPhysicalDevice();
         _CreateLogicalDevice();
         _CreateSwapchain(window);
+        _CreateRenderPass();
+        _CreatePresentationObjects();
     }
+
+    void OnUpdate();
 
     ~RenderBackend() { _CleanUp(); }
 
@@ -38,25 +43,41 @@ class RenderBackend {
     void _QuerySwapchainSupport(VkSurfaceCapabilitiesKHR*        available_capabilities,
                                 std::vector<VkSurfaceFormatKHR>* available_formats,
                                 std::vector<VkPresentModeKHR>* available_present_modes);
-
     /* ===  ===  === === === */
-    void _CreateImageViews();
+    /* === Pipeline === */
+    void _CreateRenderPass();
+    /* ===  ===  === === === */
+    /* === Presentation === */
+    void _CreatePresentationObjects();
+    /* ===  ===  === === === */
     /* === Debug Layer === */
     void _SetupDebugLayer();
     /* ===  ===  === === === */
     void _CleanUp();
 
   private:
-    VkInstance               _instance;
-    VkSurfaceKHR             _surface;
-    VkPhysicalDevice         _physical_dev;
-    VkDevice                 _device;
-    VkQueue                  _graphics_queue;
-    VkQueue                  _present_queue;
+    VkInstance   _instance;
+    VkSurfaceKHR _surface;
+    /* ===  ===  === === === === === === */
+    VkPhysicalDevice _physical_dev;
+    VkDevice         _device;
+    VkQueue          _graphics_queue;
+    VkQueue          _present_queue;
+    /* ===  ===  === === === === === === */
     VkSwapchainKHR           _swapchain;
     std::vector<VkImage>     _swapchain_images;
+    std::vector<VkImageView> _swapchain_image_views;
     VkFormat                 _swapchain_img_format;
     VkExtent2D               _swapchain_extent;
+    /* ===  ===  === === === === === === */
+    std::vector<Presentation::FramebufferAttachment> _color_attachments;
+    Presentation::FramebufferAttachment              _depth_attachment;
+    std::vector<Presentation::Framebuffer>           swapchain_framebuffers;
+    /* ===  ===  === === === === === === */
+    std::vector<VkRenderPass> _renderpass;
+    /* ===  ===  === === === === === === */
+    /* ===  ===  === === === === === === */
+    /* ===  ===  === === === === === === */
     VkDebugUtilsMessengerEXT _debug_messenger;
 };
 
