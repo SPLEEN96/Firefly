@@ -13,6 +13,9 @@ std::vector<const char*> extensions;
 std::vector<const char*> device_extensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 std::vector<const char*> debug_layers      = {"VK_LAYER_LUNARG_standard_validation"};
 
+void RenderBackend::OnUpdate() {
+}
+
 void RenderBackend::_CreateInstance() {
     VkApplicationInfo app_info  = {VK_STRUCTURE_TYPE_APPLICATION_INFO};
     app_info.pApplicationName   = "Firefly Rendering Engine";
@@ -87,13 +90,18 @@ bool RenderBackend::_IsDeviceSuitable(VkPhysicalDevice dev) {
 }
 
 void RenderBackend::_FindQueueFamilies(VkPhysicalDevice dev, uint32* graphics_index,
-                                       uint* presentation_index) {
+                                       uint32* presentation_index) {
     if (graphics_index == nullptr && presentation_index == nullptr) {
         return;
     }
+    if (graphics_index != nullptr) {
+        *graphics_index = -1;
+    }
+    if (presentation_index != nullptr) {
+        *graphics_index = *presentation_index = -1;
+    }
     bool found_graphics     = false;
     bool found_presentation = false;
-    *graphics_index = *presentation_index = -1;
 
     uint32 queue_family_count;
     vkGetPhysicalDeviceQueueFamilyProperties(_physical_dev, &queue_family_count,
@@ -279,6 +287,58 @@ void RenderBackend::_QuerySwapchainSupport(
 }
 /* ===  ===  === === === === === === === ===*/
 
+/* === === === === === === Commands === === === === === === */
+void RenderBackend::_CreateCommandPoolAndBuffers() {
+    uint32 graphics_family_index;
+    _FindQueueFamilies(_physical_dev, &graphics_family_index, nullptr);
+
+    VkCommandPoolCreateInfo create_info = {VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO};
+    create_info.queueFamilyIndex        = graphics_family_index;
+
+    VK_ASSERT(vkCreateCommandPool(_device, &create_info, nullptr, &_command_pool),
+              "Failed to create CommandPool.");
+
+    _render_command_buffers.resize(_swapchain_images.size());
+}
+
+void RenderBackend::_BeginCommandRecording(VkCommandBufferUsageFlags usage,
+                                           VkCommandBuffer&          target) {
+    VkCommandBufferAllocateInfo alloc_info = {
+        VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO};
+    alloc_info.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    alloc_info.commandPool        = _command_pool;
+    alloc_info.commandBufferCount = 1;
+
+    VK_ASSERT(vkAllocateCommandBuffers(_device, &alloc_info, &target),
+              "Failed to allocate CommandBuffer.");
+
+    VkCommandBufferBeginInfo begin_info = {VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
+    begin_info.flags                    = usage;
+    // VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT
+    // VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT
+
+    vkBeginCommandBuffer(target, &begin_info);
+}
+
+void RenderBackend::_EndCommandRecording(VkCommandBuffer& target) {
+    vkEndCommandBuffer(target);
+}
+
+void RenderBackend::_EndCommandRecordingAndSubmit(VkCommandBuffer& target) {
+    vkEndCommandBuffer(target);
+
+    VkSubmitInfo submit_info       = {VK_STRUCTURE_TYPE_SUBMIT_INFO};
+    submit_info.commandBufferCount = 1;
+    submit_info.pCommandBuffers    = &target;
+
+    /* TODO: Fence */
+    vkQueueSubmit(_graphics_queue, 1, &submit_info, VK_NULL_HANDLE);
+    vkQueueWaitIdle(_graphics_queue);
+
+    vkFreeCommandBuffers(_device, _command_pool, 1, &target);
+}
+/* ===  ===  === === === === === === === ===*/
+
 /* === === === === === === PIPELINE === === === === === === */
 void RenderBackend::_CreateRenderPass() {
     std::array<VkAttachmentDescription, 1> attachment_descrpt = {};
@@ -341,13 +401,42 @@ void RenderBackend::_CreateRenderPass() {
               "Failed to create RenderPass.");
     _renderpass.push_back(renderpass);
 }
+
+void RenderBackend::_RecordRenderPass() {
+    VkClearColorValue color       = {0.24f, 0.23f, 0.31f, 1.0f};
+    VkClearValue      clear_color = {color};
+
+    for (size_t i = 0; i < _swapchain_images.size(); i++) {
+        _BeginCommandRecording(VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT,
+                               _render_command_buffers[i]);
+
+        VkRenderPassBeginInfo renderpass_info = {
+            VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO};
+        renderpass_info.renderPass        = _renderpass[0];
+        renderpass_info.framebuffer       = _swapchain_framebuffers[i].Framebuffer;
+        renderpass_info.renderArea.offset = {0, 0};
+        renderpass_info.renderArea.extent = _swapchain_extent;
+        renderpass_info.clearValueCount   = 1;
+        renderpass_info.pClearValues      = &clear_color;
+
+        vkCmdBeginRenderPass(_render_command_buffers[i], &renderpass_info,
+                             VK_SUBPASS_CONTENTS_INLINE);
+        // vkCmdBindPipeline();
+        // vkCmdBindVertexBuffers();
+        // vkCmdBindIndexBuffer();
+        // vkCmdDrawIndexed();
+        vkCmdEndRenderPass(_render_command_buffers[i]);
+        _EndCommandRecording(_render_command_buffers[i]);
+    }
+}
+
 /* ===  ===  === === === === === === === ===*/
 
 /* === === === === === === Presentation === === === === === === */
 void RenderBackend::_CreatePresentationObjects() {
     uint32 img_count = _swapchain_images.size();
     _color_attachments.resize(img_count);
-    swapchain_framebuffers.resize(img_count);
+    _swapchain_framebuffers.resize(img_count);
 
     /* Depth Image */
 
@@ -358,12 +447,10 @@ void RenderBackend::_CreatePresentationObjects() {
             VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, _color_attachments[i]);
         Presentation::CreateFramebuffer(_device, _renderpass[0], _swapchain_extent,
                                         _color_attachments[i], _depth_attachment,
-                                        swapchain_framebuffers[i]);
+                                        _swapchain_framebuffers[i]);
     }
 }
 /* ===  ===  === === === === === === === ===*/
-
-
 
 /*
  *

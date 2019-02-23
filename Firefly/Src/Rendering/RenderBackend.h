@@ -16,8 +16,10 @@ class RenderBackend {
         _PickPhysicalDevice();
         _CreateLogicalDevice();
         _CreateSwapchain(window);
+        _CreateCommandPoolAndBuffers();
         _CreateRenderPass();
         _CreatePresentationObjects();
+        _RecordRenderPass();
     }
 
     void OnUpdate();
@@ -44,8 +46,16 @@ class RenderBackend {
                                 std::vector<VkSurfaceFormatKHR>* available_formats,
                                 std::vector<VkPresentModeKHR>* available_present_modes);
     /* ===  ===  === === === */
+    /* === Commands === */
+    void _CreateCommandPoolAndBuffers();
+    void _BeginCommandRecording(VkCommandBufferUsageFlags usage,
+                                VkCommandBuffer&          target);
+    void _EndCommandRecording(VkCommandBuffer& target);
+    void _EndCommandRecordingAndSubmit(VkCommandBuffer& target);
+    /* ===  ===  === === === */
     /* === Pipeline === */
     void _CreateRenderPass();
+    void _RecordRenderPass();
     /* ===  ===  === === === */
     /* === Presentation === */
     void _CreatePresentationObjects();
@@ -72,11 +82,12 @@ class RenderBackend {
     /* ===  ===  === === === === === === */
     std::vector<Presentation::FramebufferAttachment> _color_attachments;
     Presentation::FramebufferAttachment              _depth_attachment;
-    std::vector<Presentation::Framebuffer>           swapchain_framebuffers;
+    std::vector<Presentation::Framebuffer>           _swapchain_framebuffers;
     /* ===  ===  === === === === === === */
     std::vector<VkRenderPass> _renderpass;
     /* ===  ===  === === === === === === */
-    VkCommandPool _command_pool;
+    VkCommandPool                _command_pool;
+    std::vector<VkCommandBuffer> _render_command_buffers;
     /* ===  ===  === === === === === === */
     /* ===  ===  === === === === === === */
     VkDebugUtilsMessengerEXT _debug_messenger;
