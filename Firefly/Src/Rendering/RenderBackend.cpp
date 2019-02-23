@@ -377,15 +377,14 @@ void RenderBackend::_CreateRenderPass() {
     // subpass.pDepthStencilAttachment = &attachment_refs[1];
 
     /* Attachment Layout Transition (TODO) */
-    // VkSubpassDependency dependency;
-    // VkSubpassDependency dependency = {};
-    // dependency.srcSubpass          = VK_SUBPASS_EXTERNAL;
-    // dependency.dstSubpass          = 0;
-    // dependency.srcStageMask        = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    // dependency.srcAccessMask       = 0;
-    // dependency.dstStageMask        = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    // dependency.dstAccessMask =
-    //     VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    VkSubpassDependency dependency = {};
+    dependency.srcSubpass          = VK_SUBPASS_EXTERNAL;
+    dependency.dstSubpass          = 0;
+    dependency.srcStageMask        = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependency.srcAccessMask       = 0;
+    dependency.dstStageMask        = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependency.dstAccessMask =
+        VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
     /* Renderpass */
     VkRenderPassCreateInfo renderpass_info = {VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO};
@@ -393,8 +392,8 @@ void RenderBackend::_CreateRenderPass() {
     renderpass_info.pAttachments    = attachment_descrpt.data();
     renderpass_info.subpassCount    = 1;
     renderpass_info.pSubpasses      = &subpass;
-    renderpass_info.dependencyCount = 0;
-    // renderpass_info.pDependencies   = &dependency;
+    renderpass_info.dependencyCount = 1;
+    renderpass_info.pDependencies   = &dependency;
 
     VkRenderPass renderpass;
     VK_ASSERT(vkCreateRenderPass(_device, &renderpass_info, nullptr, &renderpass),
