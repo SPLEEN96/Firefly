@@ -1,5 +1,5 @@
 #pragma once
-#include "RenderBackend.h"
+#include "Rendering/RenderBackend.h"
 
 namespace Firefly {
 namespace Rendering {
@@ -11,6 +11,8 @@ class RenderModule {
             is_loaded = true;
         }
     }
+
+    void OnUpdate() { backend.OnUpdate(); }
 
   private:
     RenderBackend backend;
