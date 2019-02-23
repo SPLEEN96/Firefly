@@ -86,9 +86,14 @@ bool RenderBackend::_IsDeviceSuitable(VkPhysicalDevice dev) {
     return true;
 }
 
-void RenderBackend::_FindQueueFamilies(VkPhysicalDevice dev, uint32& graphics_index,
-                                       uint& presentation_index) {
-    graphics_index = presentation_index = -1;
+void RenderBackend::_FindQueueFamilies(VkPhysicalDevice dev, uint32* graphics_index,
+                                       uint* presentation_index) {
+    if (graphics_index == nullptr && presentation_index == nullptr) {
+        return;
+    }
+    bool found_graphics     = false;
+    bool found_presentation = false;
+    *graphics_index = *presentation_index = -1;
 
     uint32 queue_family_count;
     vkGetPhysicalDeviceQueueFamilyProperties(_physical_dev, &queue_family_count,
@@ -100,18 +105,27 @@ void RenderBackend::_FindQueueFamilies(VkPhysicalDevice dev, uint32& graphics_in
                                              queue_families.data());
 
     for (uint32 i = 0; i < queue_families.size(); i++) {
-        if (queue_families[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-            graphics_index = i;
+        if (graphics_index != nullptr) {
+            if (queue_families[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+                *graphics_index = i;
+                found_graphics  = true;
+            }
+        } else {
+            found_graphics = true;
+        }
+        if (presentation_index != nullptr) {
+            VkBool32 present_support = false;
+            vkGetPhysicalDeviceSurfaceSupportKHR(_physical_dev, i, _surface,
+                                                 &present_support);
+            if (present_support) {
+                *presentation_index = i;
+                found_presentation  = true;
+            }
+        } else {
+            found_presentation = true;
         }
 
-        VkBool32 present_support = false;
-        vkGetPhysicalDeviceSurfaceSupportKHR(_physical_dev, i, _surface,
-                                             &present_support);
-        if (present_support) {
-            presentation_index = i;
-        }
-
-        if (graphics_index != -1 && presentation_index != -1) {
+        if (found_graphics && found_presentation) {
             break;
         }
     }
@@ -119,7 +133,7 @@ void RenderBackend::_FindQueueFamilies(VkPhysicalDevice dev, uint32& graphics_in
 
 void RenderBackend::_CreateLogicalDevice() {
     uint32 graphics_family_index, present_family_index;
-    _FindQueueFamilies(_physical_dev, graphics_family_index, present_family_index);
+    _FindQueueFamilies(_physical_dev, &graphics_family_index, &present_family_index);
     std::set<uint32> indices = {graphics_family_index, present_family_index};
 
     float queue_priority = 1.f;
@@ -165,7 +179,7 @@ void RenderBackend::_CreateSwapchain(Window window) {
     _ChooseSwapchainPresentMode(present_mode);
 
     uint32 graphics_family_index, present_family_index;
-    _FindQueueFamilies(_physical_dev, graphics_family_index, present_family_index);
+    _FindQueueFamilies(_physical_dev, &graphics_family_index, &present_family_index);
     std::vector<uint32> indices = {graphics_family_index, present_family_index};
 
     uint32 image_count = 2;

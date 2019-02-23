@@ -32,8 +32,8 @@ class RenderBackend {
     /* === Physical Devices === */
     void _PickPhysicalDevice();
     bool _IsDeviceSuitable(VkPhysicalDevice dev); /* TODO */
-    void _FindQueueFamilies(VkPhysicalDevice dev, uint32& graphics_index,
-                            uint32& presentation_index);
+    void _FindQueueFamilies(VkPhysicalDevice dev, uint32* graphics_index,
+                            uint32* presentation_index);
     void _CreateLogicalDevice();
     /* ===  ===  === === === */
     /* === Swapchain === */
@@ -76,6 +76,7 @@ class RenderBackend {
     /* ===  ===  === === === === === === */
     std::vector<VkRenderPass> _renderpass;
     /* ===  ===  === === === === === === */
+    VkCommandPool _command_pool;
     /* ===  ===  === === === === === === */
     /* ===  ===  === === === === === === */
     VkDebugUtilsMessengerEXT _debug_messenger;
