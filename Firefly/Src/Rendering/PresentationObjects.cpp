@@ -14,8 +14,9 @@ void CreateImageView(VkDevice device, VkImage source, VkFormat format,
     create_info.viewType                    = VK_IMAGE_VIEW_TYPE_2D;
     create_info.format                      = format;
     create_info.subresourceRange.aspectMask = aspect_mask;
-    create_info.subresourceRange.baseArrayLayer = 0;
+    create_info.subresourceRange.baseMipLevel   = 0;
     create_info.subresourceRange.levelCount     = 1;
+    create_info.subresourceRange.baseArrayLayer = 0;
     create_info.subresourceRange.layerCount     = 1;
 
     VK_ASSERT(vkCreateImageView(device, &create_info, nullptr, &target),
