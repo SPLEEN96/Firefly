@@ -235,8 +235,8 @@ void RenderBackend::_ChooseSwapchainSurfaceFormat(
         return;
     }
     for (const auto& format : formats) {
-        if (((format.format == VK_FORMAT_B8G8R8A8_UNORM) ||
-             (format.format == VK_FORMAT_R16G16B16A16_SFLOAT)) &&
+        if (((format.format == VK_FORMAT_R16G16B16A16_SFLOAT) ||
+             (format.format == VK_FORMAT_B8G8R8A8_UNORM)) &&
             format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
             formats.resize(1);
             formats[0] = format;
@@ -376,7 +376,7 @@ void RenderBackend::_CreateRenderPass() {
     subpass.pColorAttachments    = &attachment_refs[0];
     // subpass.pDepthStencilAttachment = &attachment_refs[1];
 
-    /* Attachment Layout Transition (TODO) */
+    /* Synching Attachment Layout Transition (TODO) */
     VkSubpassDependency dependency = {};
     dependency.srcSubpass          = VK_SUBPASS_EXTERNAL;
     dependency.dstSubpass          = 0;
@@ -402,7 +402,7 @@ void RenderBackend::_CreateRenderPass() {
 }
 
 void RenderBackend::_RecordRenderPass() {
-    VkClearColorValue color       = {0.24f, 0.23f, 0.31f, 1.0f};
+    VkClearColorValue color       = {0.26f, 0.14f, 0.22f, 1.f};
     VkClearValue      clear_color = {color};
 
     for (size_t i = 0; i < _swapchain_images.size(); i++) {
@@ -420,13 +420,143 @@ void RenderBackend::_RecordRenderPass() {
 
         vkCmdBeginRenderPass(_render_command_buffers[i], &renderpass_info,
                              VK_SUBPASS_CONTENTS_INLINE);
-        // vkCmdBindPipeline();
+        vkCmdBindPipeline(_render_command_buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
+                          _graphics_pipeline);
         // vkCmdBindVertexBuffers();
         // vkCmdBindIndexBuffer();
         // vkCmdDrawIndexed();
+        vkCmdDraw(_render_command_buffers[i], 3, 1, 0, 0);
         vkCmdEndRenderPass(_render_command_buffers[i]);
         _EndCommandRecording(_render_command_buffers[i]);
     }
+}
+
+void RenderBackend::_CreatePipeline() {
+    Shader::Shader vert_shader, frag_shader;
+    Shader::CreateShader(_device, "./Src/Rendering/Shaders/triangle.vert.spv",
+                         vert_shader);
+    Shader::CreateShader(_device, "./Src/Rendering/Shaders/triangle.frag.spv",
+                         frag_shader);
+
+    VkPipelineShaderStageCreateInfo shader_stages_info[2] = {};
+    shader_stages_info[0].sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    shader_stages_info[0].stage  = VK_SHADER_STAGE_VERTEX_BIT;
+    shader_stages_info[0].module = vert_shader.Module;
+    shader_stages_info[0].pName  = "main";
+
+    shader_stages_info[1].sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    shader_stages_info[1].stage  = VK_SHADER_STAGE_FRAGMENT_BIT;
+    shader_stages_info[1].module = frag_shader.Module;
+    shader_stages_info[1].pName  = "main";
+
+    auto binding_description = Shader::Vertex::GetBindingDescription();
+    auto attrib_description  = Shader::Vertex::GetAttribDescription();
+
+    VkPipelineVertexInputStateCreateInfo vertex_input_info = {
+        VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO};
+
+    VkPipelineInputAssemblyStateCreateInfo input_assembly_info = {
+        VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO};
+    input_assembly_info.topology               = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    input_assembly_info.primitiveRestartEnable = VK_FALSE;
+
+    /* The Viewport has to be flipped because the Y Coordinate is reversed */
+    VkViewport viewport = {};
+    viewport.x          = 0.f;
+    viewport.y          = (float)_swapchain_extent.height; /* Flip Viewport */
+    viewport.width      = (float)_swapchain_extent.width;
+    viewport.height     = -(float)_swapchain_extent.height; /* Flip Viewport */
+    viewport.minDepth   = 0.f;
+    viewport.maxDepth   = 1.f;
+
+    VkRect2D scissor = {};
+    scissor.offset   = {0, 0};
+    scissor.extent   = _swapchain_extent;
+
+    VkPipelineViewportStateCreateInfo viewport_info = {
+        VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO};
+    viewport_info.viewportCount = 1;
+    viewport_info.pViewports    = &viewport;
+    viewport_info.scissorCount  = 1;
+    viewport_info.pScissors     = &scissor;
+
+    VkPipelineRasterizationStateCreateInfo rasterizer_info = {
+        VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO};
+    rasterizer_info.depthClampEnable        = VK_FALSE;
+    rasterizer_info.rasterizerDiscardEnable = VK_FALSE;
+    rasterizer_info.polygonMode             = VK_POLYGON_MODE_FILL;
+    rasterizer_info.lineWidth               = 1.f;
+    rasterizer_info.cullMode                = VK_CULL_MODE_BACK_BIT;
+    rasterizer_info.frontFace               = VK_FRONT_FACE_CLOCKWISE;
+    rasterizer_info.depthBiasEnable         = VK_FALSE;
+
+    VkPipelineMultisampleStateCreateInfo multisampling_info = {
+        VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO};
+    multisampling_info.sampleShadingEnable  = VK_FALSE;
+    multisampling_info.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+
+    VkPipelineDepthStencilStateCreateInfo depth_stencil_info = {
+        VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO};
+    depth_stencil_info.depthTestEnable       = VK_TRUE;
+    depth_stencil_info.depthWriteEnable      = VK_TRUE;
+    depth_stencil_info.depthCompareOp        = VK_COMPARE_OP_LESS;
+    depth_stencil_info.depthBoundsTestEnable = VK_FALSE;
+    depth_stencil_info.minDepthBounds        = 0.f;
+    depth_stencil_info.maxDepthBounds        = 1.f;
+    depth_stencil_info.stencilTestEnable     = VK_FALSE;
+
+    VkPipelineColorBlendAttachmentState colorblend_attachment = {};
+    colorblend_attachment.colorWriteMask =
+        VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT |
+        VK_COLOR_COMPONENT_A_BIT;
+    colorblend_attachment.blendEnable = VK_FALSE;
+
+    VkPipelineColorBlendStateCreateInfo color_blending_info = {
+        VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO};
+    color_blending_info.logicOpEnable   = VK_FALSE;
+    color_blending_info.attachmentCount = 1;
+    color_blending_info.pAttachments    = &colorblend_attachment;
+
+    // VkDynamicState dynamic_states[] = {VK_DYNAMIC_STATE_VIEWPORT,
+    //                                    VK_DYNAMIC_STATE_SCISSOR};
+
+    // VkPipelineDynamicStateCreateInfo dynamic_state_info = {
+    //     VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO};
+    // dynamic_state_info.dynamicStateCount =
+    //     sizeof(dynamic_states) / sizeof(dynamic_states[0]);
+    // dynamic_state_info.pDynamicStates = dynamic_states;
+
+    VkPipelineLayoutCreateInfo pipeline_layout_info = {
+        VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO};
+    pipeline_layout_info.setLayoutCount         = 0;
+    pipeline_layout_info.pushConstantRangeCount = 0;
+
+    VK_ASSERT(vkCreatePipelineLayout(_device, &pipeline_layout_info, nullptr,
+                                     &_graphics_pipeline_layout),
+              "Failed to create Graphics Pipeline Layout.");
+
+    VkGraphicsPipelineCreateInfo create_info = {
+        VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO};
+    create_info.stageCount          = 2;
+    create_info.pStages             = shader_stages_info;
+    create_info.pVertexInputState   = &vertex_input_info;
+    create_info.pInputAssemblyState = &input_assembly_info;
+    create_info.pViewportState      = &viewport_info;
+    create_info.pRasterizationState = &rasterizer_info;
+    create_info.pMultisampleState   = &multisampling_info;
+    create_info.pDepthStencilState  = &depth_stencil_info;
+    create_info.pColorBlendState    = &color_blending_info;
+    create_info.pDynamicState       = nullptr;
+    create_info.layout              = _graphics_pipeline_layout;
+    create_info.renderPass          = _renderpass[0];
+    create_info.subpass             = 0;
+
+    VK_ASSERT(vkCreateGraphicsPipelines(_device, VK_NULL_HANDLE, 1, &create_info,
+                                        nullptr, &_graphics_pipeline),
+              "Failed to create Graphics Pipeline.");
+
+    vkDestroyShaderModule(_device, vert_shader.Module, nullptr);
+    vkDestroyShaderModule(_device, frag_shader.Module, nullptr);
 }
 
 /* ===  ===  === === === === === === === ===*/
@@ -451,6 +581,7 @@ void RenderBackend::_CreatePresentationObjects() {
 }
 /* ===  ===  === === === === === === === ===*/
 
+/* ===  ===  === === === === === === === ===*/
 /*
  *
  *
