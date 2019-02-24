@@ -1,6 +1,7 @@
 #pragma once
 #include "Rendering/PresentationObjects.h"
 #include "Rendering/RENDER_CORE.h"
+#include "Rendering/Shader.h"
 
 #include "Firefly/Window.h"
 
@@ -19,6 +20,7 @@ class RenderBackend {
         _CreateCommandPoolAndBuffers();
         _CreateRenderPass();
         _CreatePresentationObjects();
+        _CreatePipeline();
         _RecordRenderPass();
     }
 
@@ -56,6 +58,7 @@ class RenderBackend {
     /* === Pipeline === */
     void _CreateRenderPass();
     void _RecordRenderPass();
+    void _CreatePipeline();
     /* ===  ===  === === === */
     /* === Presentation === */
     void _CreatePresentationObjects();
@@ -76,19 +79,19 @@ class RenderBackend {
     /* ===  ===  === === === === === === */
     VkSwapchainKHR           _swapchain;
     std::vector<VkImage>     _swapchain_images;
-    std::vector<VkImageView> _swapchain_image_views;
     VkFormat                 _swapchain_img_format;
     VkExtent2D               _swapchain_extent;
+    /* ===  ===  === === === === === === */
+    VkCommandPool                _command_pool;
+    std::vector<VkCommandBuffer> _render_command_buffers;
     /* ===  ===  === === === === === === */
     std::vector<Presentation::FramebufferAttachment> _color_attachments;
     Presentation::FramebufferAttachment              _depth_attachment;
     std::vector<Presentation::Framebuffer>           _swapchain_framebuffers;
     /* ===  ===  === === === === === === */
     std::vector<VkRenderPass> _renderpass;
-    /* ===  ===  === === === === === === */
-    VkCommandPool                _command_pool;
-    std::vector<VkCommandBuffer> _render_command_buffers;
-    /* ===  ===  === === === === === === */
+    VkPipeline                _graphics_pipeline;
+    VkPipelineLayout          _graphics_pipeline_layout;
     /* ===  ===  === === === === === === */
     VkDebugUtilsMessengerEXT _debug_messenger;
 };
