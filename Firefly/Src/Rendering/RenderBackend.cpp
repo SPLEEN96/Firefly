@@ -633,6 +633,16 @@ void RenderBackend::_CreatePresentationObjects() {
  */
 /* === === === === === === CleanUp === === === === === === */
 void RenderBackend::_CleanUp() {
+    vkDestroyPipeline(_device, _graphics_pipeline, nullptr);
+    vkDestroyPipelineLayout(_device, _graphics_pipeline_layout, nullptr);
+    for (size_t i = 0; i < _renderpass.size(); i++) {
+        vkDestroyRenderPass(_device, _renderpass[i], nullptr);
+    }
+    for (size_t i = 0; i < _swapchain_images.size(); i++) {
+        vkDestroyFramebuffer(_device, _swapchain_framebuffers[i].Framebuffer, nullptr);
+        vkDestroyImageView(_device, _color_attachments[i].View, nullptr);
+    }
+    vkDestroyCommandPool(_device, _command_pool, nullptr);
     vkDestroySwapchainKHR(_device, _swapchain, nullptr);
     vkDestroyDevice(_device, nullptr);
     DestroyDebugUtilsMessengerEXT(_instance, _debug_messenger, nullptr);
