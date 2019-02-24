@@ -51,6 +51,8 @@ struct Window {
 
     bool ShouldClose();
 
+    void* GetPlatformWindow();
+
   private:
     uint8      DataHandle;
     WindowData m_data;
