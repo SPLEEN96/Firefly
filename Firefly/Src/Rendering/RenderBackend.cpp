@@ -13,7 +13,52 @@ std::vector<const char*> extensions;
 std::vector<const char*> device_extensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 std::vector<const char*> debug_layers      = {"VK_LAYER_LUNARG_standard_validation"};
 
+VkSemaphore CreateSemaphore(VkDevice device) {
+    VkSemaphore           semaphore   = 0;
+    VkSemaphoreCreateInfo create_info = {VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO};
+    VK_ASSERT(vkCreateSemaphore(device, &create_info, nullptr, &semaphore),
+              "Failed to create semaphore.");
+    return semaphore;
+}
+
 void RenderBackend::OnUpdate() {
+    static bool init = false;
+    if (!init) {
+        _acquire_semaphore = CreateSemaphore(_device);
+        _release_semaphore = CreateSemaphore(_device);
+        init               = true;
+    }
+    uint32 image_index = 0;
+
+    VK_ASSERT(vkAcquireNextImageKHR(_device, _swapchain,
+                                    std::numeric_limits<uint64>::max(),
+                                    _acquire_semaphore, VK_NULL_HANDLE, &image_index),
+              "Failed to acquire next Image");
+
+    VkPipelineStageFlags submit_stage_mask =
+        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
+    VkSubmitInfo submit_info         = {VK_STRUCTURE_TYPE_SUBMIT_INFO};
+    submit_info.waitSemaphoreCount   = 1;
+    submit_info.pWaitSemaphores      = &_acquire_semaphore;
+    submit_info.pWaitDstStageMask    = &submit_stage_mask;
+    submit_info.commandBufferCount   = 1;
+    submit_info.pCommandBuffers      = &_render_command_buffers[image_index];
+    submit_info.signalSemaphoreCount = 1;
+    submit_info.pSignalSemaphores    = &_release_semaphore;
+
+    VK_ASSERT(vkQueueSubmit(_graphics_queue, 1, &submit_info, VK_NULL_HANDLE),
+              "Failed to submit Graphics Queue.");
+
+    VkPresentInfoKHR present_info   = {VK_STRUCTURE_TYPE_PRESENT_INFO_KHR};
+    present_info.swapchainCount     = 1;
+    present_info.waitSemaphoreCount = 1;
+    present_info.pWaitSemaphores    = &_release_semaphore;
+    present_info.pSwapchains        = &_swapchain;
+    present_info.pImageIndices      = &image_index;
+    vkQueuePresentKHR(_graphics_queue, &present_info);
+
+    vkDeviceWaitIdle(_device);
 }
 
 void RenderBackend::_CreateInstance() {

@@ -93,6 +93,9 @@ class RenderBackend {
     VkPipeline                _graphics_pipeline;
     VkPipelineLayout          _graphics_pipeline_layout;
     /* ===  ===  === === === === === === */
+    VkSemaphore _acquire_semaphore;
+    VkSemaphore _release_semaphore;
+    /* ===  ===  === === === === === === */
     VkDebugUtilsMessengerEXT _debug_messenger;
 };
 
