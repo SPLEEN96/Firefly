@@ -10,41 +10,48 @@ namespace Firefly {
 namespace Rendering {
 
 std::vector<const char*> extensions;
-std::vector<const char*> device_extensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
-std::vector<const char*> debug_layers      = {"VK_LAYER_LUNARG_standard_validation"};
+std::vector<const char*> device_extensions    = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+std::vector<const char*> debug_layers         = {"VK_LAYER_LUNARG_standard_validation"};
+const uint32             MAX_FRAMES_IN_FLIGHT = 4;
 
 void RenderBackend::OnUpdate() {
+    vkWaitForFences(_device, 1, &_in_flight_fences[_current_frame], VK_TRUE,
+                    std::numeric_limits<uint64>::max());
+    vkResetFences(_device, 1, &_in_flight_fences[_current_frame]);
+
     uint32 image_index = 0;
 
-    VK_ASSERT(vkAcquireNextImageKHR(_device, _swapchain,
-                                    std::numeric_limits<uint64>::max(),
-                                    _acquire_semaphore, VK_NULL_HANDLE, &image_index),
-              "Failed to acquire next Image");
+    VK_ASSERT(vkAcquireNextImageKHR(
+                  _device, _swapchain, std::numeric_limits<uint64>::max(),
+                  _acquired_semaphore[_current_frame], VK_NULL_HANDLE, &image_index),
+              "Failed to acquire next Swapchain Image.");
 
     VkPipelineStageFlags submit_stage_mask =
         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
     VkSubmitInfo submit_info         = {VK_STRUCTURE_TYPE_SUBMIT_INFO};
     submit_info.waitSemaphoreCount   = 1;
-    submit_info.pWaitSemaphores      = &_acquire_semaphore;
+    submit_info.pWaitSemaphores      = &_acquired_semaphore[_current_frame];
     submit_info.pWaitDstStageMask    = &submit_stage_mask;
     submit_info.commandBufferCount   = 1;
     submit_info.pCommandBuffers      = &_render_command_buffers[image_index];
     submit_info.signalSemaphoreCount = 1;
-    submit_info.pSignalSemaphores    = &_release_semaphore;
+    submit_info.pSignalSemaphores    = &_released_semaphore[_current_frame];
 
-    VK_ASSERT(vkQueueSubmit(_graphics_queue, 1, &submit_info, VK_NULL_HANDLE),
-              "Failed to submit Graphics Queue.");
+    VK_ASSERT(vkQueueSubmit(_graphics_queue, 1, &submit_info,
+                            _in_flight_fences[_current_frame]),
+              "Failed to submit the Drawing Command Buffer to the Graphics Queue.");
 
     VkPresentInfoKHR present_info   = {VK_STRUCTURE_TYPE_PRESENT_INFO_KHR};
-    present_info.swapchainCount     = 1;
     present_info.waitSemaphoreCount = 1;
-    present_info.pWaitSemaphores    = &_release_semaphore;
+    present_info.pWaitSemaphores    = &_released_semaphore[_current_frame];
+    present_info.swapchainCount     = 1;
     present_info.pSwapchains        = &_swapchain;
     present_info.pImageIndices      = &image_index;
-    vkQueuePresentKHR(_graphics_queue, &present_info);
 
-    vkDeviceWaitIdle(_device);
+    vkQueuePresentKHR(_present_queue, &present_info);
+
+    _current_frame = (_current_frame + 1) % (MAX_FRAMES_IN_FLIGHT);
 }
 
 void RenderBackend::_CreateInstance() {
@@ -368,6 +375,18 @@ void RenderBackend::_EndCommandRecordingAndSubmit(VkCommandBuffer& target) {
 
     vkFreeCommandBuffers(_device, _command_pool, 1, &target);
 }
+
+void RenderBackend::_CreateSyncObjects() {
+    _acquired_semaphore.resize(MAX_FRAMES_IN_FLIGHT);
+    _released_semaphore.resize(MAX_FRAMES_IN_FLIGHT);
+    _in_flight_fences.resize(MAX_FRAMES_IN_FLIGHT);
+
+    for (uint32 i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        SyncObjects::CreateSemaphore(_device, _acquired_semaphore[i]);
+        SyncObjects::CreateSemaphore(_device, _released_semaphore[i]);
+        SyncObjects::CreateFence(_device, _in_flight_fences[i]);
+    }
+}
 /* ===  ===  === === === === === === === ===*/
 
 /* === === === === === === PIPELINE === === === === === === */
@@ -406,7 +425,7 @@ void RenderBackend::_CreateRenderPass() {
     subpass.pColorAttachments       = &attachment_refs[0];
     subpass.pDepthStencilAttachment = &attachment_refs[1];
 
-    /* Synching Attachment Layout Transition (TODO) */
+    /* Synching Attachment Layout Transition between Subpasses */
     VkSubpassDependency dependency = {};
     dependency.srcSubpass          = VK_SUBPASS_EXTERNAL;
     dependency.dstSubpass          = 0;
@@ -624,6 +643,14 @@ void RenderBackend::_CreatePresentationObjects() {
  */
 /* === === === === === === CleanUp === === === === === === */
 void RenderBackend::_CleanUp() {
+    vkDeviceWaitIdle(_device);
+
+    for (uint32 i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        vkDestroySemaphore(_device, _acquired_semaphore[i], nullptr);
+        vkDestroySemaphore(_device, _released_semaphore[i], nullptr);
+        vkDestroyFence(_device, _in_flight_fences[i], nullptr);
+    }
+
     vkDestroyPipeline(_device, _graphics_pipeline, nullptr);
     vkDestroyPipelineLayout(_device, _graphics_pipeline_layout, nullptr);
     for (size_t i = 0; i < _renderpass.size(); i++) {

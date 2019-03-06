@@ -2,6 +2,7 @@
 #include "Rendering/PresentationObjects.h"
 #include "Rendering/RENDER_CORE.h"
 #include "Rendering/Shader.h"
+#include "Rendering/SyncObjects.h"
 
 #include "Firefly/Window.h"
 
@@ -11,6 +12,7 @@ namespace Rendering {
 class RenderBackend {
   public:
     void Init(Window window) {
+        _current_frame = 0;
         _CreateInstance();
         _SetupDebugLayer();
         _CreateSurface(window);
@@ -18,6 +20,7 @@ class RenderBackend {
         _CreateLogicalDevice();
         _CreateSwapchain(window);
         _CreateCommandPoolAndBuffers();
+        _CreateSyncObjects();
         _CreateRenderPass();
         _CreatePresentationObjects();
         _CreatePipeline();
@@ -54,6 +57,7 @@ class RenderBackend {
                                 VkCommandBuffer&          target);
     void _EndCommandRecording(VkCommandBuffer& target);
     void _EndCommandRecordingAndSubmit(VkCommandBuffer& target);
+    void _CreateSyncObjects();
     /* ===  ===  === === === */
     /* === Pipeline === */
     void _CreateRenderPass();
@@ -94,8 +98,12 @@ class RenderBackend {
     VkPipeline                _graphics_pipeline;
     VkPipelineLayout          _graphics_pipeline_layout;
     /* ===  ===  === === === === === === */
-    VkSemaphore _acquire_semaphore;
-    VkSemaphore _release_semaphore;
+    std::vector<VkSemaphore>
+        _acquired_semaphore; /* Signaling that an Image is acquired */
+    std::vector<VkSemaphore>
+           _released_semaphore; /* Signaling that the Acquired Image is released */
+    std::vector<VkFence> _in_flight_fences;
+    uint32 _current_frame;
     /* ===  ===  === === === === === === */
     VkDebugUtilsMessengerEXT _debug_messenger;
 };
