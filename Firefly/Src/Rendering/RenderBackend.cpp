@@ -665,10 +665,16 @@ void RenderBackend::_CleanUp() {
     for (size_t i = 0; i < _renderpass.size(); i++) {
         vkDestroyRenderPass(_device, _renderpass[i], nullptr);
     }
+
+    vkDestroyImageView(_device, _depth_attachment.View, nullptr);
+    vkDestroyImage(_device, _depth_attachment.Image, nullptr);
+    vkFreeMemory(_device, _depth_attachment.Memory, nullptr);
+    vkDestroyFramebuffer(_device, _depth_framebuffer.Framebuffer, nullptr);
     for (size_t i = 0; i < _swapchain_images.size(); i++) {
-        vkDestroyFramebuffer(_device, _swapchain_framebuffers[i].Framebuffer, nullptr);
         vkDestroyImageView(_device, _color_attachments[i].View, nullptr);
+        vkDestroyFramebuffer(_device, _swapchain_framebuffers[i].Framebuffer, nullptr);
     }
+
     vkDestroyCommandPool(_device, _command_pool, nullptr);
     vkDestroySwapchainKHR(_device, _swapchain, nullptr);
     vkDestroyDevice(_device, nullptr);
