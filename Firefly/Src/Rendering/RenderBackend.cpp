@@ -286,6 +286,15 @@ void RenderBackend::_ChooseSwapchainSurfaceFormat(
 
 void RenderBackend::_ChooseSwapchainPresentMode(
     std::vector<VkPresentModeKHR>& present_mode) {
+    _QuerySwapchainSupport(nullptr, nullptr, &present_mode);
+
+    for (size_t i = 0; i < present_mode.size(); i++) {
+        if (present_mode[i] == VK_PRESENT_MODE_MAILBOX_KHR) {
+            present_mode.resize(1);
+            present_mode[0] = VK_PRESENT_MODE_MAILBOX_KHR;
+            return;
+        }
+    }
     present_mode.resize(1);
     present_mode[0] = VK_PRESENT_MODE_FIFO_KHR;
 }
