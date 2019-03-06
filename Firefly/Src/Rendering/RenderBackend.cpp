@@ -13,21 +13,7 @@ std::vector<const char*> extensions;
 std::vector<const char*> device_extensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 std::vector<const char*> debug_layers      = {"VK_LAYER_LUNARG_standard_validation"};
 
-VkSemaphore CreateSemaphore(VkDevice device) {
-    VkSemaphore           semaphore   = 0;
-    VkSemaphoreCreateInfo create_info = {VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO};
-    VK_ASSERT(vkCreateSemaphore(device, &create_info, nullptr, &semaphore),
-              "Failed to create semaphore.");
-    return semaphore;
-}
-
 void RenderBackend::OnUpdate() {
-    static bool init = false;
-    if (!init) {
-        _acquire_semaphore = CreateSemaphore(_device);
-        _release_semaphore = CreateSemaphore(_device);
-        init               = true;
-    }
     uint32 image_index = 0;
 
     VK_ASSERT(vkAcquireNextImageKHR(_device, _swapchain,
@@ -386,7 +372,7 @@ void RenderBackend::_EndCommandRecordingAndSubmit(VkCommandBuffer& target) {
 
 /* === === === === === === PIPELINE === === === === === === */
 void RenderBackend::_CreateRenderPass() {
-    std::array<VkAttachmentDescription, 1> attachment_descrpt = {};
+    std::array<VkAttachmentDescription, 2> attachment_descrpt = {};
     /* Color */
     attachment_descrpt[0].format         = _swapchain_img_format;
     attachment_descrpt[0].samples        = VK_SAMPLE_COUNT_1_BIT;
@@ -397,29 +383,28 @@ void RenderBackend::_CreateRenderPass() {
     attachment_descrpt[0].initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;
     attachment_descrpt[0].finalLayout    = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
     /* Depth */
-    // attachment_descrpt[1].format         = VK_FORMAT_D32_SFLOAT;
-    // attachment_descrpt[1].samples        = VK_SAMPLE_COUNT_1_BIT;
-    // attachment_descrpt[1].loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    // attachment_descrpt[1].storeOp        = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    // attachment_descrpt[1].stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    // attachment_descrpt[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    // attachment_descrpt[1].initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;
-    // attachment_descrpt[1].finalLayout =
-    // VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    attachment_descrpt[1].format         = VK_FORMAT_D32_SFLOAT;
+    attachment_descrpt[1].samples        = VK_SAMPLE_COUNT_1_BIT;
+    attachment_descrpt[1].loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    attachment_descrpt[1].storeOp        = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    attachment_descrpt[1].stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    attachment_descrpt[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    attachment_descrpt[1].initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;
+    attachment_descrpt[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
     /* Attachment References */
-    std::array<VkAttachmentReference, 1> attachment_refs;
+    std::array<VkAttachmentReference, 2> attachment_refs;
     attachment_refs[0].attachment = 0;
     attachment_refs[0].layout     = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-    // attachment_refs[1].attachment = 1;
-    // attachment_refs[1].layout     = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    attachment_refs[1].attachment = 1;
+    attachment_refs[1].layout     = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
     /* Subpass */
-    VkSubpassDescription subpass = {};
-    subpass.pipelineBindPoint    = VK_PIPELINE_BIND_POINT_GRAPHICS;
-    subpass.colorAttachmentCount = 1;
-    subpass.pColorAttachments    = &attachment_refs[0];
-    // subpass.pDepthStencilAttachment = &attachment_refs[1];
+    VkSubpassDescription subpass    = {};
+    subpass.pipelineBindPoint       = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    subpass.colorAttachmentCount    = 1;
+    subpass.pColorAttachments       = &attachment_refs[0];
+    subpass.pDepthStencilAttachment = &attachment_refs[1];
 
     /* Synching Attachment Layout Transition (TODO) */
     VkSubpassDependency dependency = {};
@@ -447,8 +432,11 @@ void RenderBackend::_CreateRenderPass() {
 }
 
 void RenderBackend::_RecordRenderPass() {
-    VkClearColorValue color       = {0.26f, 0.14f, 0.22f, 1.f};
-    VkClearValue      clear_color = {color};
+    VkClearColorValue           color        = {0.26f, 0.14f, 0.22f, 1.f};
+    VkClearDepthStencilValue    depth        = {1, 0};
+    std::array<VkClearValue, 2> clear_values = {};
+    clear_values[0].color                    = color;
+    clear_values[1].depthStencil             = depth;
 
     for (size_t i = 0; i < _swapchain_images.size(); i++) {
         _BeginCommandRecording(VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT,
@@ -460,8 +448,8 @@ void RenderBackend::_RecordRenderPass() {
         renderpass_info.framebuffer       = _swapchain_framebuffers[i].Framebuffer;
         renderpass_info.renderArea.offset = {0, 0};
         renderpass_info.renderArea.extent = _swapchain_extent;
-        renderpass_info.clearValueCount   = 1;
-        renderpass_info.pClearValues      = &clear_color;
+        renderpass_info.clearValueCount   = static_cast<uint32>(clear_values.size());
+        renderpass_info.pClearValues      = clear_values.data();
 
         vkCmdBeginRenderPass(_render_command_buffers[i], &renderpass_info,
                              VK_SUBPASS_CONTENTS_INLINE);
@@ -613,11 +601,14 @@ void RenderBackend::_CreatePresentationObjects() {
     _swapchain_framebuffers.resize(img_count);
 
     /* Depth Image */
+    Presentation::CreateAttachment(
+        _device, _swapchain_extent, nullptr, VK_FORMAT_D32_SFLOAT,
+        VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, _depth_attachment);
 
     /* Color ImageViews and Framebuffers */
     for (uint32 i = 0; i < img_count; i++) {
         Presentation::CreateAttachment(
-            _device, &_swapchain_images[i], _swapchain_img_format,
+            _device, _swapchain_extent, &_swapchain_images[i], _swapchain_img_format,
             VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, _color_attachments[i]);
         Presentation::CreateFramebuffer(_device, _renderpass[0], _swapchain_extent,
                                         _color_attachments[i], _depth_attachment,

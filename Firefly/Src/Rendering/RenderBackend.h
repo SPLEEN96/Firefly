@@ -77,10 +77,10 @@ class RenderBackend {
     VkQueue          _graphics_queue;
     VkQueue          _present_queue;
     /* ===  ===  === === === === === === */
-    VkSwapchainKHR           _swapchain;
-    std::vector<VkImage>     _swapchain_images;
-    VkFormat                 _swapchain_img_format;
-    VkExtent2D               _swapchain_extent;
+    VkSwapchainKHR       _swapchain;
+    std::vector<VkImage> _swapchain_images;
+    VkFormat             _swapchain_img_format;
+    VkExtent2D           _swapchain_extent;
     /* ===  ===  === === === === === === */
     VkCommandPool                _command_pool;
     std::vector<VkCommandBuffer> _render_command_buffers;
@@ -88,6 +88,7 @@ class RenderBackend {
     std::vector<Presentation::FramebufferAttachment> _color_attachments;
     Presentation::FramebufferAttachment              _depth_attachment;
     std::vector<Presentation::Framebuffer>           _swapchain_framebuffers;
+    Presentation::Framebuffer                        _depth_framebuffer;
     /* ===  ===  === === === === === === */
     std::vector<VkRenderPass> _renderpass;
     VkPipeline                _graphics_pipeline;
