@@ -2,9 +2,9 @@
 #include "FFLY_CORE.h"
 #include "PCH_CORE.h"
 
-#include "Firefly/Events/Event.h"
-#include "Firefly/Events/KeyEvents.h"
-#include "Firefly/Events/MouseEvents.h"
+#include "Events/Event.h"
+#include "Events/KeyEvents.h"
+#include "Events/MouseEvents.h"
 
 namespace Firefly {
 
@@ -13,9 +13,8 @@ struct WindowData {
 
     uint8       Handle;
     std::string Title;
-    int         Width;
-    int         Height;
-    bool (*EventCallbackFn)(Event& e);
+    uint32         Width;
+    uint32         Height;
 
     std::function<bool(Event& e)> CallbackFn;
 
@@ -38,15 +37,11 @@ struct Window {
     void           Initialize();
     void           OnUpdate();
 
-    void SetEventCallbackFn(bool(CallbackFn)(Event& e)) {
-        Data().EventCallbackFn = CallbackFn;
-    }
     void BindEventCallBackFn(std::function<bool(Event& e)> Callback) {
         Data().CallbackFn = Callback;
     }
     WindowData& Data() {
         return m_data;
-        // return MemoryManager::WinData(DataHandle);
     }
 
     bool ShouldClose();
