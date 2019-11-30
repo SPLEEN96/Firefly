@@ -1,23 +1,15 @@
-#include "Application.h"
+#include "Core/Application.h"
 #include "PCH_CORE.h"
-
-#include "glad/glad.h"
 
 namespace Firefly {
 
 Application::Application() {
     m_running = true;
-    m_window  = std::unique_ptr<Window>(Window::Create("Firefly", 1280, 720));
-    m_window->SetEventCallbackFn(([](Event& e) {
-        // FFLY_LOG_CORE_TRACE("{0}", e.ToString());
-        // EventDispatcher test(e);
-        // test.Dispatch(E_KEY_PRESSED,testouille);
-        // m_gui->OnEvent(e);
-        return true;
-    }));
-    m_window->BindEventCallBackFn(
-        std::bind(&Application::OnEvent, this, std::placeholders::_1));
-    m_gui = new GUI();
+    m_window  = std::unique_ptr<Window>(Window::Create("Firefly", 1280, 960));
+
+    // m_window->BindEventCallBackFn(
+    //     std::bind(&Application::OnEvent, this, std::placeholders::_1));
+    m_window->BindEventCallBackFn(FFLY_BIND_EVENT_FN(&Application::OnEvent));
 
     m_rmodule.Load(*m_window);
 }
@@ -25,24 +17,47 @@ Application::~Application() {
 }
 
 void Application::Run() {
+    double frame_time = glfwGetTime();
+    double end_frame  = glfwGetTime();
+    int    frame      = 0;
+    glfwSwapInterval(0);
+
     while (IsRunning()) {
-        glClearColor(0.24f, 0.23f, 0.31f, 1.0f);
-        m_gui->OnUpdate(m_window->Data().Width, m_window->Data().Height);
+        frame++;
+
+        m_rmodule.OnUpdate();
+
         m_window->OnUpdate();
-        glClear(GL_COLOR_BUFFER_BIT);
 
         if (m_window->ShouldClose()) {
             m_running = false;
         }
+        if (end_frame - frame_time >= 1) {
+            frame_time = glfwGetTime();
+            std::cout << "CORE_ENGINE:" << frame << "FPS" << std::endl;
+            frame = 0;
+        }
+        end_frame = glfwGetTime();
     }
     m_running = false;
 }
 
 bool Application::OnEvent(Event& e) {
-    m_gui->OnEvent(e);
+    // EventDispatcher dispatcher(e);
+    // dispatcher.Dispatch<Event>(FFLY_BIND_EVENT_FN(&Application::OnWindowCloseEvent));
 }
 
-Application* CreateApplication() {
+void Application::PushLayer(Layer* layer) {
+    m_layer_stack.PushLayer(layer);
+}
+
+void Application::PushOverlay(Layer* layer) {
+    m_layer_stack.PushOverlay(layer);
+}
+
+bool Application::OnWindowCloseEvent(Event& e) {
+    m_running = false;
+    return true;
 }
 
 } // namespace Firefly

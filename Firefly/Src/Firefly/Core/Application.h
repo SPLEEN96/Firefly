@@ -1,7 +1,7 @@
 #pragma once
+#include "Core/Window.h"
 #include "FFLY_CORE.h"
-#include "Firefly/FFLYImgui.h"
-#include "Firefly/Window.h"
+#include "LayerStack.h"
 
 #include "Rendering/RenderModule.h"
 
@@ -15,14 +15,21 @@ class Application {
     void Run();
     bool OnEvent(Event& e);
 
+    void PushLayer(Layer* layer);
+    void PushOverlay(Layer* layer);
+
     const bool& IsRunning() const { return m_running; }
 
   private:
+    bool OnWindowCloseEvent(Event& e);
+    bool OnWindowResizeEvent(Event& e);
+
+  private:
     std::unique_ptr<Window> m_window;
-    GUI*                    m_gui;
+    LayerStack              m_layer_stack;
     Rendering::RenderModule m_rmodule;
-    
-    bool                    m_running;
+
+    bool m_running;
 };
 
 Application* CreateApplication();
