@@ -1,6 +1,6 @@
 #include "PCH_CORE.h"
 #include "FFLY_CORE.h"
-#include "Firefly/Application.h"
+#include "Core/Application.h"
 
 class Sandbox : public Firefly::Application {
   public:
