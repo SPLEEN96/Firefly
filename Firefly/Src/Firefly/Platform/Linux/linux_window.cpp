@@ -56,13 +56,6 @@ void Window::OnUpdate() {
     glfwSwapBuffers(window);
 }
 
-bool Window::ShouldClose() {
-    if (glfwWindowShouldClose(static_cast<GLFWwindow*>(this->Data().linux.Window))) {
-        return true;
-    }
-    return false;
-}
-
 void* Window::GetPlatformWindow() {
     return this->Data().linux.Window;
 }
@@ -75,7 +68,10 @@ void InitGLFWCallbacks(GLFWwindow* window) {
     });
 
     glfwSetWindowCloseCallback(window, [](GLFWwindow* window) {
-        WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+        WindowData&       data = *(WindowData*)glfwGetWindowUserPointer(window);
+        WindowCloseEvent* e    = new WindowCloseEvent();
+        data.CallbackFn(*e);
+        delete e;
     });
 
     glfwSetKeyCallback(

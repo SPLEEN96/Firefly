@@ -3,6 +3,8 @@
 #include "PCH_CORE.h"
 
 #include "Events/Event.h"
+
+#include "Events/ApplicationEvents.h"
 #include "Events/KeyEvents.h"
 #include "Events/MouseEvents.h"
 
@@ -13,8 +15,8 @@ struct WindowData {
 
     uint8       Handle;
     std::string Title;
-    uint32         Width;
-    uint32         Height;
+    uint32      Width;
+    uint32      Height;
 
     std::function<bool(Event& e)> CallbackFn;
 
@@ -40,11 +42,7 @@ struct Window {
     void BindEventCallBackFn(std::function<bool(Event& e)> Callback) {
         Data().CallbackFn = Callback;
     }
-    WindowData& Data() {
-        return m_data;
-    }
-
-    bool ShouldClose();
+    WindowData& Data() { return m_data; }
 
     void* GetPlatformWindow();
 
