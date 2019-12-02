@@ -13,7 +13,7 @@ VULKAN_SDK_PATH	:=./Lib/vulkan/x86_64
 CC			:=gcc
 CXX			:=g++
 OUTPUT		:=Engine.out
-INCLUDES	:=-I./Src -I./Src/Firefly -I./Lib/ -I./Lib/spdlog/include/  -I./Lib/glad/include/
+INCLUDES	:=-I./Src -I./Src/Firefly -I./Lib/ -I./Lib/spdlog/include/  -I./Lib/glad/include/ -I./Lib/imgui/
 CFLAGS 		:=-g -Wall
 CXXFLAGS	:=-std=c++11 -g -Wall
 LFLAGS		:=-lglfw -lGL -ldl

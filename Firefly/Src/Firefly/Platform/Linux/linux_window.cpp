@@ -3,7 +3,6 @@
 #define FFLY_LINUX
 #ifdef FFLY_LINUX
 /* ======================== LINUX IMPLEMENTATION ======================== */
-/* IMGUI */
 #include <GLFW/glfw3.h>
 
 namespace Firefly {

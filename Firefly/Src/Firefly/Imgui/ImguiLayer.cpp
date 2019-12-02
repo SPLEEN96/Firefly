@@ -1,6 +1,5 @@
 #include "Imgui/ImguiLayer.h"
 
-#define IMGUI_IMPL_OPENGL_LOADER_GLAD
 #include <GLFW/glfw3.h>
 #include <imgui/imgui.h>
 
