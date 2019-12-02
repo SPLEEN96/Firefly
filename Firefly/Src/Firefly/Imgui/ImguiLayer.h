@@ -11,9 +11,11 @@ class ImguiLayer : public Layer {
 
     void OnAttach() override;
     void OnDetach() override;
-    void OnUpdate() override;
-    void OnImGuiRender() override;
-    void OnEvent(Event& event) override;
+    void OnImGuiDraw() override;
+
+    void Begin();
+    void End();
+
 
   private:
     Window* m_window;

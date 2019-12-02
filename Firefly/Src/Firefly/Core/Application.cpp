@@ -17,24 +17,24 @@ Application::~Application() {
 }
 
 void Application::Run() {
-    double frame_time = glfwGetTime();
-    double end_frame  = glfwGetTime();
-    int    frame      = 0;
-    glfwSwapInterval(0);
-
     while (IsRunning()) {
-        frame++;
-
         m_rmodule.OnUpdate();
-        m_imgui_layer->OnUpdate();
-        m_window->OnUpdate();
 
-        if (end_frame - frame_time >= 1) {
-            frame_time = glfwGetTime();
-            std::cout << "CORE_ENGINE:" << frame << "FPS" << std::endl;
-            frame = 0;
+        /* Update each Layers */
+        for (std::vector<Layer*>::iterator it = m_layer_stack.Begin();
+             it != m_layer_stack.End(); it++) {
+            (*it)->OnUpdate();
         }
-        end_frame = glfwGetTime();
+
+        /* If a Layer has a UI, Draw it */
+        m_imgui_layer->Begin();
+        for (std::vector<Layer*>::iterator it = m_layer_stack.Begin();
+             it != m_layer_stack.End(); it++) {
+            (*it)->OnImGuiDraw();
+        }
+        m_imgui_layer->End();
+
+        m_window->OnUpdate();
     }
     m_running = false;
 }
