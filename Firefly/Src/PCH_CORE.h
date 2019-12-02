@@ -1,7 +1,4 @@
 #pragma once
-
-#include "Core/Logger.h"
-
 #include <cstdio>
 
 #include <fstream>

@@ -1,3 +1,4 @@
+#include "Core/Logger.h"
 #include "PCH_CORE.h"
 
 namespace Firefly {
