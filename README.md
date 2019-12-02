@@ -1,4 +1,7 @@
 # FIREFLY
+ 
+**New name ideas: Cinder**
+
 **coding style** :heart_eyes: :+1: : <br/>
 
 *clang_format_fallbackStyle  { <br/>
