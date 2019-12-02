@@ -1,5 +1,4 @@
 #pragma once
-
 #include "Events/Event.h"
 #include "FFLY_CORE.h"
 
@@ -8,7 +7,7 @@ namespace Firefly {
 class Layer {
   public:
     Layer(const char* name = "Layer") : m_name(name) {}
-    virtual ~Layer();
+    virtual ~Layer() {}
 
     virtual void OnAttach() {}
     virtual void OnDetach() {}
