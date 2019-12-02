@@ -62,12 +62,4 @@ class KeyTypedEvent : public KeyEvent {
     }
 };
 
-// struct KeyEventStruct {
-//     union {
-//         /* Key Pressed */
-//         struct {} key_pressed;
-//         struct {} key_released;
-//     };
-// };
-
 } // namespace Firefly
