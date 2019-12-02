@@ -36,10 +36,12 @@ class Event {
     friend class EventDispatcher;
 
   public:
-    virtual const EventType& GetType() const { return m_type; }
-    virtual const uint8&     GetCategoryFlags() const { return m_category; }
-    virtual const char*      GetName() const { return EventNames[m_type]; }
-    virtual std::string      ToString() const = 0;
+    virtual const EventType GetType() const = 0;
+    const uint8&            GetCategoryFlags() const { return m_category; }
+    const char*             GetName() const { return EventNames[m_type]; }
+    virtual std::string     ToString() const = 0;
+
+    bool IsInCategory(EventCategory category) { return m_category & category; }
 
   protected:
     Event(EventType type = E_NONE, EventCategory category = ECATEGORY_NONE)
@@ -69,14 +71,14 @@ class Event {
                                "MouseScrolled"};
 };
 
-
 class EventDispatcher {
   public:
     EventDispatcher(Event& e) : m_event(e) {}
 
-    bool Dispatch(EventType e_type, bool(EventFn)(Event* e)) {
-        if (m_event.GetType() == e_type) {
-            EventFn(&m_event);
+    template <typename T> bool Dispatch(std::function<bool(T& e)> EventFn) {
+        if (m_event.GetType() == T::GetStaticType()) {
+
+            EventFn(*(T*)&m_event);
             return true;
         }
         return false;
@@ -85,6 +87,8 @@ class EventDispatcher {
   private:
     Event& m_event;
 };
+
+#define FFLY_BIND_EVENT_FN(fn) std::bind(fn, this, std::placeholders::_1)
 
 // class EventHandler {
 //   public:
