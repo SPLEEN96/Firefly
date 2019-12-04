@@ -25,7 +25,7 @@ class LayerStack {
     Stack::const_iterator End() const { return m_layers.end(); }
 
   private:
-    Stack           m_layers;
-    Stack::iterator m_top_index;
+    Stack  m_layers;
+    uint32 m_top_index;
 };
 } // namespace Firefly
