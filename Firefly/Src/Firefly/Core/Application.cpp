@@ -11,7 +11,7 @@ Application::Application() {
     m_rmodule.Load(*m_window);
 
     m_imgui_layer = new ImguiLayer(m_window.get());
-    this->PushLayer(m_imgui_layer);
+    this->PushOverlay(m_imgui_layer);
 }
 Application::~Application() {
 }
