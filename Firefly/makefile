@@ -15,7 +15,7 @@ CXX			:=g++
 OUTPUT		:=Engine.out
 INCLUDES	:=-I./Src -I./Src/Firefly -I./Lib/ -I./Lib/spdlog/include/  -I./Lib/glad/include/ -I./Lib/imgui/
 CFLAGS 		:=-g -Wall
-CXXFLAGS	:=-std=c++11 -g -Wall
+CXXFLAGS	:=-std=c++14 -g -Wall
 LFLAGS		:=-lglfw -lGL -ldl
 DEFINES		:=-DDFFLY_LINUX -DGLFW_INCLUDE_NONE
 CXXFLAGS	+=$(DEFINES)
