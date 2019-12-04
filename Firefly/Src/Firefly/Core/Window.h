@@ -17,6 +17,7 @@ struct WindowData {
     std::string Title;
     uint32      Width;
     uint32      Height;
+    bool        VSync;
 
     std::function<bool(Event& e)> CallbackFn;
 
@@ -35,7 +36,8 @@ struct WindowData {
 };
 
 struct Window {
-    static Window* Create(std::string title, uint16 width, uint16 height);
+    static Window* Create(std::string title, uint16 width, uint16 height,
+                          bool VSync = true);
     void           Initialize();
     void           OnUpdate();
 
@@ -45,6 +47,7 @@ struct Window {
     WindowData& Data() { return m_data; }
 
     void* GetPlatformWindow();
+    void  SetVSync(bool enabled);
 
   private:
     uint8      DataHandle;

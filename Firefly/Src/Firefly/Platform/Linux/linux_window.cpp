@@ -7,23 +7,25 @@
 
 namespace Firefly {
 
+void InitGLFWCallbacks(GLFWwindow* window);
+
 static void GLFWWindowCallback(int error, const char* description) {
     FFLY_LOG_CORE_ERROR("{0}", description);
 }
 
-Window* Window::Create(std::string title, uint16 width, uint16 height) {
+Window* Window::Create(std::string title, uint16 width, uint16 height, bool VSync) {
     Window* win = new Window();
 
     win->Data().Title  = title;
     win->Data().Width  = width;
     win->Data().Height = height;
+    win->Data().VSync  = VSync;
 
     win->Initialize();
 
     return win;
 }
 
-void InitGLFWCallbacks(GLFWwindow* window);
 void Window::Initialize() {
     FFLY_ASSERT(glfwInit(), "Failed to init GLFW");
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -43,6 +45,8 @@ void Window::Initialize() {
     glfwSetWindowUserPointer(window, &this->Data());
     glfwSetErrorCallback(GLFWWindowCallback);
     InitGLFWCallbacks(window);
+
+    this->SetVSync(this->Data().VSync);
 
     FFLY_LOG_CORE_INFO("Created Window {0} ({1}, {2})", this->Data().Title,
                        this->Data().Width, this->Data().Height);
@@ -124,6 +128,15 @@ void InitGLFWCallbacks(GLFWwindow* window) {
         data.CallbackFn(e);
     });
 }
+
+void Window::SetVSync(bool enabled) {
+    if (enabled)
+        glfwSwapInterval(1);
+    else
+        glfwSwapInterval(0);
+    this->Data().VSync = enabled;
+}
+
 } // namespace Firefly
 
 #endif
