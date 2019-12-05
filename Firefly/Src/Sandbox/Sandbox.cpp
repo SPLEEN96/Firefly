@@ -6,6 +6,11 @@
 #include <imgui/examples/imgui_impl_glfw.h>
 #include <imgui/examples/imgui_impl_opengl3.h>
 
+#include <glad/glad.h>
+#include <Rendering/Buffer.h>
+
+#define FFLY Firefly::Rendering
+
 class TriangleLayer : public Firefly::Layer {
   public:
     TriangleLayer() : Layer("Sandbox") {}
@@ -13,15 +18,15 @@ class TriangleLayer : public Firefly::Layer {
 
     virtual void OnAttach() override {
         glGenVertexArrays(1, &VAO);
-        glGenBuffers(1, &VBO);
-
         glBindVertexArray(VAO);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+        std::vector<FFLY::VertexAttribute> vattr = {
+            FFLY::VertexAttribute("position", FFLY::VertexAttribute::AttrType::FLOAT3),
+            FFLY::VertexAttribute("color", FFLY::VertexAttribute::AttrType::FLOAT3)};
 
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        FFLY::VertexBuffer* vbuffer =
+            new FFLY::VertexBuffer(vertices, sizeof(vertices), vattr);
+        vbuffer->Bind();
 
         int    success;
         char   infoLog[512];
@@ -77,12 +82,14 @@ class TriangleLayer : public Firefly::Layer {
     }
 
     virtual void OnImGuiDraw() override {
+        ImGui::ShowStyleEditor();
+
         bool             show_color_picker = true;
         ImGuiWindowFlags window_flags      = 0;
         window_flags |= ImGuiWindowFlags_NoScrollbar;
         window_flags |= ImGuiWindowFlags_NoResize;
 
-        ImGui::SetNextWindowSize(ImVec2(275, 225), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(280, 255), ImGuiCond_FirstUseEver);
         ImGui::Begin("Color Picker", &show_color_picker, window_flags);
         {
             ImGuiColorEditFlags flags = 0;
@@ -103,7 +110,8 @@ class TriangleLayer : public Firefly::Layer {
     uint32 VAO, VBO, program;
     ImVec4 color = ImVec4(0.4f, 0.f, 0.f, 1.f);
 
-    float vertices[9] = {-0.5f, -0.5f, 0.0f, 0.5f, -0.5f, 0.0f, 0.0f, 0.5f, 0.0f};
+    float vertices[6 * 3] = {-0.5f, -0.5f, 0.0f, 1.f,  0.f,  0.f,  0.5f, -0.5f, 0.0f,
+                             0.f,   1.f,   0.f,  0.0f, 0.5f, 0.0f, 0.f,  0.f,   1.f};
 
     const char* vshader_source = "#version 330 core\n"
                                  "layout (location =0) in vec3 a_position;\n"
