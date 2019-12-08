@@ -7,3 +7,6 @@
 [submodule "Firefly/Lib/imgui"]
 	path = Firefly/Lib/imgui
 	url = https://github.com/ocornut/imgui.git
+[submodule "Firefly/Lib/glm"]
+	path = Firefly/Lib/glm
+	url = https://github.com/g-truc/glm
