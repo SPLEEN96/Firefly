@@ -1,3 +1,29 @@
+/* TODO
+=== ENGINE ===
+!!OKEYY!! Shader Class <--(1) !!OKEYY!!
+-Camera Class <--(3)
+-Transform Class <--(4)
+
+=== OPENGL PRIMITIVES ===
+-VAO abstraction <-- (5)
+
+=== RENDERING ARCHITECTURE ===
+-Framebuffer
+-CommandQueue
+-FrameGraph
+
+=== FACTORY ===
+!!OKEYY!! Create function for every objects !!OKEYY!!
+-Memory management
+-Factory class??
+
+=== Assets ===
+!!OKEYY!! Texture  <--(2) !!OKEYY!!
+-Material
+-Mesh
+-Model
+*/
+
 #pragma once
 #include "FFLY_CORE.h"
 
