@@ -59,7 +59,7 @@ Rendering::Shader* Create(const char* file_path) {
     glDeleteShader(fragment_shader);
 
     Rendering::Shader* shader = new Rendering::Shader();
-    shader->SetProgram(program);
+    shader->SetHandleAPI(program);
     return shader;
 }
 

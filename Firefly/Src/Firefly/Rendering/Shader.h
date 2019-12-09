@@ -13,11 +13,11 @@ class Shader {
 
     void SetUniform3fv(const char* name, float x, float y, float z);
 
-    void SetProgram(uint32 program_handle) {
+    void SetHandleAPI(uint32 program_handle) {
         if (!initialized) {
-            m_handle = program_handle;
+            m_handle    = program_handle;
+            initialized = true;
         }
-        initialized = true;
     }
 
   private:
