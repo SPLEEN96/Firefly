@@ -10,3 +10,6 @@
 [submodule "Firefly/Lib/glm"]
 	path = Firefly/Lib/glm
 	url = https://github.com/g-truc/glm
+[submodule "Firefly/Lib/stb"]
+	path = Firefly/Lib/stb
+	url = https://github.com/nothings/stb
