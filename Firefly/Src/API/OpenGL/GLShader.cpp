@@ -28,38 +28,38 @@ std::string ReadShadeSourceCode(const char* file_path, bool vertex = true);
 void        SuccessInfo(GLenum test_type, GLuint gl_object, const char* obj_name);
 
 Rendering::Shader* Create(const char* file_path) {
-    uint32 vertex_shader, fragment_shader, program;
+    uint32 vertex_shader_handle, fragment_shader_handle, program_handle;
 
     /* === Vertex === */
-    vertex_shader                 = glCreateShader(GL_VERTEX_SHADER);
+    vertex_shader_handle          = glCreateShader(GL_VERTEX_SHADER);
     std::string vertex_source_str = ReadShadeSourceCode(file_path, true);
     const char* vertex_source     = vertex_source_str.c_str();
 
-    glShaderSource(vertex_shader, 1, &vertex_source, NULL);
-    glCompileShader(vertex_shader);
-    SuccessInfo(GL_COMPILE_STATUS, vertex_shader, "Vertex Shader");
+    glShaderSource(vertex_shader_handle, 1, &vertex_source, NULL);
+    glCompileShader(vertex_shader_handle);
+    SuccessInfo(GL_COMPILE_STATUS, vertex_shader_handle, "Vertex Shader");
 
     /* === Fragment === */
-    fragment_shader                 = glCreateShader(GL_FRAGMENT_SHADER);
+    fragment_shader_handle          = glCreateShader(GL_FRAGMENT_SHADER);
     std::string fragment_source_str = ReadShadeSourceCode(file_path, false);
     const char* fragment_source     = fragment_source_str.c_str();
 
-    glShaderSource(fragment_shader, 1, &fragment_source, NULL);
-    glCompileShader(fragment_shader);
-    SuccessInfo(GL_COMPILE_STATUS, fragment_shader, "Fragment Shader");
+    glShaderSource(fragment_shader_handle, 1, &fragment_source, NULL);
+    glCompileShader(fragment_shader_handle);
+    SuccessInfo(GL_COMPILE_STATUS, fragment_shader_handle, "Fragment Shader");
 
     /* === Program === */
-    program = glCreateProgram();
-    glAttachShader(program, vertex_shader);
-    glAttachShader(program, fragment_shader);
-    glLinkProgram(program);
-    SuccessInfo(GL_LINK_STATUS, program, "Shader Program");
+    program_handle = glCreateProgram();
+    glAttachShader(program_handle, vertex_shader_handle);
+    glAttachShader(program_handle, fragment_shader_handle);
+    glLinkProgram(program_handle);
+    SuccessInfo(GL_LINK_STATUS, program_handle, "Shader Program");
 
-    glDeleteShader(vertex_shader);
-    glDeleteShader(fragment_shader);
+    glDeleteShader(vertex_shader_handle);
+    glDeleteShader(fragment_shader_handle);
 
     Rendering::Shader* shader = new Rendering::Shader();
-    shader->SetHandleAPI(program);
+    shader->SetHandleAPI(program_handle);
     return shader;
 }
 
