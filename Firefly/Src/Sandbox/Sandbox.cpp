@@ -29,14 +29,15 @@ class TriangleLayer : public Firefly::Layer {
             new FFLY::VertexBuffer(m_vertices, sizeof(m_vertices), vattr);
         vbuffer->Bind();
 
-        m_triangle_shader = Firefly::Shader::Create("./Assets/Shaders/TriangleTest");
+        m_triangle_shader =
+            Firefly::Factory::Shader::Create("./Assets/Shaders/TriangleTest");
     }
 
     virtual void OnDetach() override {}
 
     virtual void OnUpdate() override {
         m_triangle_shader->Bind();
-        m_triangle_shader->SetUniform3fv("u_color",m_color.x, m_color.y, m_color.z);
+        m_triangle_shader->SetUniform3fv("u_color", m_color.x, m_color.y, m_color.z);
 
         glBindVertexArray(m_VAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);
