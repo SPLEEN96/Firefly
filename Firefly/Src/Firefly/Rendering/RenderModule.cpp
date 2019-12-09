@@ -13,7 +13,7 @@ void RenderModule::Load(Window window) {
         FFLY_LOG_CORE_CRITICAL("RenderModule::API::NONE is not a valid API");
 
     case RenderModule::API::OPENGL:
-        m_backend = std::make_unique<RenderBackend>();
+        m_backend = Factory::RenderBackend::CreateUnique();
     }
 
     m_backend->InitAPI();

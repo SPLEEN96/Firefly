@@ -21,11 +21,13 @@ void Shader::SetUniform3fv(const char* name, float x, float y, float z) {
 }
 } // namespace Rendering
 
+/* === FACTORY === */
+namespace Factory {
 namespace Shader {
 std::string ReadShadeSourceCode(const char* file_path, bool vertex = true);
 void        SuccessInfo(GLenum test_type, GLuint gl_object, const char* obj_name);
 
-Firefly::Rendering::Shader* Create(const char* file_path) {
+Rendering::Shader* Create(const char* file_path) {
     uint32 vertex_shader, fragment_shader, program;
 
     /* === Vertex === */
@@ -56,7 +58,7 @@ Firefly::Rendering::Shader* Create(const char* file_path) {
     glDeleteShader(vertex_shader);
     glDeleteShader(fragment_shader);
 
-    Firefly::Rendering::Shader* shader = new Firefly::Rendering::Shader();
+    Rendering::Shader* shader = new Rendering::Shader();
     shader->SetProgram(program);
     return shader;
 }
@@ -112,6 +114,7 @@ void SuccessInfo(GLenum test_type, GLuint gl_object, const char* obj_name) {
     }
 }
 } // namespace Shader
+} // namespace Factory
 
 } // namespace Firefly
 

@@ -26,7 +26,10 @@ class Shader {
 };
 } // namespace Rendering
 
+/* === FACTORY === */
+namespace Factory {
 namespace Shader {
-Firefly::Rendering::Shader* Create(const char* file_path);
+Rendering::Shader* Create(const char* file_path);
 } // namespace Shader
+} // namespace Factory
 } // namespace Firefly

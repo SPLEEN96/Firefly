@@ -74,9 +74,6 @@ class VertexBuffer {
     void Bind() const;
     void Unbind() const;
 
-    static VertexBuffer* Create(float* vertices, uint32 size,
-                                std::vector<VertexAttribute> attributes);
-
   private:
     uint                  m_handle;
     AttributesDescription m_layout;
@@ -84,11 +81,22 @@ class VertexBuffer {
 
 class IndexBuffer {
   public:
-    virtual ~IndexBuffer() {}
-    virtual void Bind() const   = 0;
-    virtual void Unbind() const = 0;
-
-    static IndexBuffer* Create(uint32 indices, uint32 size);
+    ~IndexBuffer() {}
+    void Bind() const;
+    void Unbind() const;
 };
 } // namespace Rendering
+
+/* === FACTORY === */
+namespace Factory {
+namespace VertexBuffer {
+Rendering::VertexBuffer* Create(float* vertices, uint32 size,
+                                std::vector<Rendering::VertexAttribute> attributes);
+} // namespace VertexBuffer
+
+namespace IndexBuffer {
+Rendering::IndexBuffer* Create(uint32 indices, uint32 size);
+} // namespace IndexBuffer
+} // namespace Factory
+
 } // namespace Firefly

@@ -8,8 +8,6 @@ class RenderBackend {
     RenderBackend();
     ~RenderBackend();
 
-    static RenderBackend* Create();
-
     void InitAPI();
 
     void SetViewport(uint32 x, uint32 y, uint32 width, uint32 height);
@@ -22,4 +20,12 @@ class RenderBackend {
   private:
 };
 } // namespace Rendering
+
+/* === FACTORY === */
+namespace Factory {
+namespace RenderBackend {
+Rendering::RenderBackend*                 Create();
+std::unique_ptr<Rendering::RenderBackend> CreateUnique();
+} // namespace RenderBackend
+} // namespace Factory
 } // namespace Firefly

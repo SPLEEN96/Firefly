@@ -13,10 +13,6 @@ RenderBackend::RenderBackend() {
 RenderBackend::~RenderBackend() {
 }
 
-RenderBackend* RenderBackend::Create() {
-    return new RenderBackend();
-}
-
 void RenderBackend::InitAPI() {
     FFLY_ASSERT(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress),
                 "Failed to initialize glad.");
@@ -47,7 +43,21 @@ void RenderBackend::ClearBuffers(bool color_buffer, bool depth_buffer,
     glClear(flags);
 }
 
-void DrawIndexed();
+void DrawIndexed() {
+}
 } // namespace Rendering
+
+/* === FACTORY === */
+namespace Factory {
+namespace RenderBackend {
+Rendering::RenderBackend* Create() {
+    return new Rendering::RenderBackend();
+}
+std::unique_ptr<Rendering::RenderBackend> CreateUnique() {
+    return std::make_unique<Rendering::RenderBackend>();
+}
+} // namespace RenderBackend
+} // namespace Factory
+
 }; // namespace Firefly
 #endif

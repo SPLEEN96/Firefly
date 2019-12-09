@@ -23,10 +23,6 @@ GLenum VertexAttributeToOpenGLType(VertexAttribute::AttrType attr_type) {
 }
 
 /* === Vertex Buffer === */
-VertexBuffer* VertexBuffer::Create(float* vertices, uint32 size,
-                                   std::vector<VertexAttribute> attributes) {
-}
-
 VertexBuffer::VertexBuffer(float* vertices, uint32 size,
                            std::vector<VertexAttribute> attributes)
     : m_layout(attributes) {
@@ -52,8 +48,19 @@ void VertexBuffer::Unbind() const {
 
 /* === Index Buffer === */
 
-IndexBuffer* IndexBuffer::Create(uint32 indices, uint32 size) {
+/* === FACTORY === */
+namespace Factory {
+namespace VertexBuffer {
+Rendering::VertexBuffer* Create(float* vertices, uint32 size,
+                                std::vector<VertexAttribute> attributes) {
 }
+} // namespace VertexBuffer
+
+namespace IndexBuffer {
+Rendering::IndexBuffer* Create(uint32 indices, uint32 size) {
+}
+} // namespace IndexBuffer
+} // namespace Factory
 
 } // namespace Rendering
 } // namespace Firefly
