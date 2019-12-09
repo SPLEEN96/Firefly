@@ -9,5 +9,6 @@
 
 /* === Rendering === */
 #include "Rendering/RenderModule.h"
-
 #include "Rendering/Buffer.h"
+#include "Rendering/Shader.h"
+#include "Rendering/Texture.h"
