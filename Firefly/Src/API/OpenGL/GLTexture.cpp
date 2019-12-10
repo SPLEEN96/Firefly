@@ -7,7 +7,16 @@
 #include "Rendering/Texture.h"
 namespace Firefly {
 namespace Rendering {
-void Texture::Bind() {
+void Texture::Bind(uint32 texture_no) {
+    if (texture_no == 0) {
+        glActiveTexture(GL_TEXTURE0);
+    } else if (texture_no == 1) {
+        glActiveTexture(GL_TEXTURE1);
+    } else if (texture_no == 2) {
+        glActiveTexture(GL_TEXTURE2);
+    } else if (texture_no == 3) {
+        glActiveTexture(GL_TEXTURE3);
+    }
     glBindTexture(GL_TEXTURE_2D, m_handle);
 }
 } // namespace Rendering

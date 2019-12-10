@@ -10,7 +10,7 @@ class Texture {
 
     // void BindToFramebuffer(Framebuffer* target);
 
-	void Bind();
+    void Bind(uint32 texture_no = 0);
 
     void SetHandleAPI(uint32 handle) {
         if (!initialized) {
