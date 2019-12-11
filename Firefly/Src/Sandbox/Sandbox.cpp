@@ -24,8 +24,8 @@ class TriangleLayer : public Firefly::Layer {
             FFLY::VertexAttribute("color", FFLY::VertexAttribute::AttrType::FLOAT3),
             FFLY::VertexAttribute("tex_coord", FFLY::VertexAttribute::AttrType::FLOAT2)};
 
-        FFLY::VertexBuffer* vbuffer =
-            new FFLY::VertexBuffer(m_quad_vertices, sizeof(m_quad_vertices), vattr);
+        FFLY::VertexBuffer* vbuffer = Firefly::Factory::VertexBuffer::Create(
+            m_quad_vertices, sizeof(m_quad_vertices), vattr);
         vbuffer->Bind();
 
         m_triangle_shader =
@@ -47,8 +47,8 @@ class TriangleLayer : public Firefly::Layer {
         m_square_shader->Bind();
         m_square_shader->SetUniform1i("tex", 0);
         m_texture->Bind(0);
-        //m_square_shader->SetUniform1i("tex", 1);
-        //m_texture2->Bind(1);
+        // m_square_shader->SetUniform1i("tex", 1);
+        // m_texture2->Bind(1);
 
         glBindVertexArray(m_VAO);
         glDrawArrays(GL_TRIANGLES, 0, 6);

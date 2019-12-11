@@ -46,6 +46,7 @@ struct VertexAttribute {
 };
 
 struct AttributesDescription {
+    AttributesDescription() {}
     AttributesDescription(std::vector<VertexAttribute> attributes)
         : Attributes(attributes) {
         uint32 offset = 0;
@@ -69,19 +70,31 @@ struct AttributesDescription {
 
 class VertexBuffer {
   public:
-    VertexBuffer(float* vertices, uint32 size, std::vector<VertexAttribute> attributes);
+    VertexBuffer() {}
     ~VertexBuffer() {}
+
     void Bind() const;
     void Unbind() const;
 
+    void SetAPIHandleAndLayout(const uint32&                handle,
+                               const AttributesDescription& layout) {
+        if (!initialized) {
+            m_handle    = handle;
+            m_layout    = layout;
+            initialized = true;
+        }
+    }
+
   private:
-    uint                  m_handle;
+    uint32                m_handle;
     AttributesDescription m_layout;
+    bool                  initialized = false;
 };
 
 class IndexBuffer {
   public:
     ~IndexBuffer() {}
+
     void Bind() const;
     void Unbind() const;
 };

@@ -47,12 +47,39 @@ void VertexBuffer::Unbind() const {
 }
 
 /* === Index Buffer === */
+} // namespace Rendering
 
 /* === FACTORY === */
 namespace Factory {
 namespace VertexBuffer {
 Rendering::VertexBuffer* Create(float* vertices, uint32 size,
-                                std::vector<VertexAttribute> attributes) {
+                                std::vector<Rendering::VertexAttribute> attributes) {
+    uint32                           buffer_handle = 0;
+    Rendering::AttributesDescription buffer_layout(attributes);
+
+    glGenBuffers(1, &buffer_handle);
+    glBindBuffer(GL_ARRAY_BUFFER, buffer_handle);
+
+    glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
+
+    for (uint32 i = 0; i < buffer_layout.Size(); i++) {
+        glEnableVertexAttribArray(i);
+        auto count  = buffer_layout[i].GetCount();
+        auto type   = Rendering::VertexAttributeToOpenGLType(buffer_layout[i].Type);
+        auto stride = buffer_layout.Stride;
+        auto offset = buffer_layout[i].Offset;
+
+        glVertexAttribPointer(
+            i, buffer_layout[i].GetCount(),
+            Rendering::VertexAttributeToOpenGLType(buffer_layout[i].Type),
+            buffer_layout[i].ToNormalize, buffer_layout.Stride,
+            (void*)buffer_layout[i].Offset);
+    }
+
+    Rendering::VertexBuffer* buffer = new Rendering::VertexBuffer();
+    buffer->SetAPIHandleAndLayout(buffer_handle, buffer_layout);
+
+    return buffer;
 }
 } // namespace VertexBuffer
 
@@ -62,6 +89,5 @@ Rendering::IndexBuffer* Create(uint32 indices, uint32 size) {
 } // namespace IndexBuffer
 } // namespace Factory
 
-} // namespace Rendering
 } // namespace Firefly
 #endif
