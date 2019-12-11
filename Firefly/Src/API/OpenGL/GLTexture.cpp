@@ -60,7 +60,7 @@ Rendering::Texture* Create(const char* filename, bool repeat) {
     stbi_image_free(data);
 
     Rendering::Texture* texture = new Rendering::Texture();
-    texture->SetHandleAPI(texture_handle);
+    texture->SetAPIHandle(texture_handle);
 
     return texture;
 }

@@ -11,9 +11,10 @@ class Shader {
     void Bind();
     void Unbind();
 
+    void SetUniform1i(const char* name, float x);
     void SetUniform3fv(const char* name, float x, float y, float z);
 
-    void SetHandleAPI(uint32 program_handle) {
+    void SetAPIHandle(uint32 program_handle) {
         if (!initialized) {
             m_handle    = program_handle;
             initialized = true;

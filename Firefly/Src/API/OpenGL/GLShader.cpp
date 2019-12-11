@@ -15,6 +15,10 @@ void Shader::Unbind() {
     glUseProgram(0);
 }
 
+void Shader::SetUniform1i(const char* name, float x) {
+    glUniform1i(glGetUniformLocation(m_handle, name), x);
+}
+
 void Shader::SetUniform3fv(const char* name, float x, float y, float z) {
     float value[3] = {x, y, z};
     glUniform3fv(glGetUniformLocation(m_handle, name), 1, value);
@@ -25,7 +29,7 @@ void Shader::SetUniform3fv(const char* name, float x, float y, float z) {
 namespace Factory {
 namespace Shader {
 std::string ReadShadeSourceCode(const char* file_path, bool vertex = true);
-void        SuccessInfo(GLenum test_type, GLuint gl_object, const char* obj_name);
+void SuccessInfo(GLenum test_type, GLuint gl_primitive, const char* primitive_name);
 
 Rendering::Shader* Create(const char* file_path) {
     uint32 vertex_shader_handle, fragment_shader_handle, program_handle;
@@ -59,7 +63,7 @@ Rendering::Shader* Create(const char* file_path) {
     glDeleteShader(fragment_shader_handle);
 
     Rendering::Shader* shader = new Rendering::Shader();
-    shader->SetHandleAPI(program_handle);
+    shader->SetAPIHandle(program_handle);
     return shader;
 }
 
@@ -92,24 +96,25 @@ std::string ReadShadeSourceCode(const char* file_path, bool vertex) {
     return shader_source;
 }
 
-void SuccessInfo(GLenum test_type, GLuint gl_object, const char* obj_name) {
+void SuccessInfo(GLenum test_type, GLuint gl_primitive, const char* primitive_name) {
     int  success;
     char info_log[512];
 
     if (test_type == GL_COMPILE_STATUS) {
-        glGetShaderiv(gl_object, test_type, &success);
+        glGetShaderiv(gl_primitive, test_type, &success);
 
         if (!success) {
-            glGetShaderInfoLog(gl_object, 512, NULL, info_log);
-            FFLY_LOG_CORE_ERROR("Shader Compilation failed ({0}): {1}", obj_name,
+            glGetShaderInfoLog(gl_primitive, 512, NULL, info_log);
+            FFLY_LOG_CORE_ERROR("Shader Compilation failed ({0}): {1}", primitive_name,
                                 info_log);
         }
     } else if (test_type == GL_LINK_STATUS) {
-        glGetProgramiv(gl_object, test_type, &success);
+        glGetProgramiv(gl_primitive, test_type, &success);
 
         if (!success) {
-            glGetProgramInfoLog(gl_object, 512, NULL, info_log);
-            FFLY_LOG_CORE_ERROR("Program Linking failed ({0}): {1}", obj_name, info_log);
+            glGetProgramInfoLog(gl_primitive, 512, NULL, info_log);
+            FFLY_LOG_CORE_ERROR("Program Linking failed ({0}): {1}", primitive_name,
+                                info_log);
         }
     }
 }

@@ -12,7 +12,7 @@ class Texture {
 
     void Bind(uint32 texture_no = 0);
 
-    void SetHandleAPI(uint32 handle) {
+    void SetAPIHandle(uint32 handle) {
         if (!initialized) {
             m_handle    = handle;
             initialized = true;
