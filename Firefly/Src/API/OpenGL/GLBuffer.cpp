@@ -23,22 +23,6 @@ GLenum VertexAttributeToOpenGLType(VertexAttribute::AttrType attr_type) {
 }
 
 /* === Vertex Buffer === */
-VertexBuffer::VertexBuffer(float* vertices, uint32 size,
-                           std::vector<VertexAttribute> attributes)
-    : m_layout(attributes) {
-    glGenBuffers(1, &m_handle);
-    this->Bind();
-
-    glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
-
-    for (uint32 i = 0; i < m_layout.Size(); i++) {
-        glEnableVertexAttribArray(i);
-        glVertexAttribPointer(
-            i, m_layout[i].GetCount(), VertexAttributeToOpenGLType(m_layout[i].Type),
-            m_layout[i].ToNormalize, m_layout.Stride, (void*)m_layout[i].Offset);
-    }
-}
-
 void VertexBuffer::Bind() const {
     glBindBuffer(GL_ARRAY_BUFFER, m_handle);
 }
