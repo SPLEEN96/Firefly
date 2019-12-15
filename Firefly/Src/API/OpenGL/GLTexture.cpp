@@ -7,7 +7,7 @@
 #include "Rendering/Texture.h"
 namespace Firefly {
 namespace Rendering {
-void Texture::Bind(uint32 texture_no) {
+void Texture::Bind(const uint32& texture_no) {
     if (texture_no == 0) {
         glActiveTexture(GL_TEXTURE0);
     } else if (texture_no == 1) {
@@ -24,7 +24,7 @@ void Texture::Bind(uint32 texture_no) {
 /* === FACTORY === */
 namespace Factory {
 namespace Texture {
-Rendering::Texture* Create(const char* filename, bool repeat) {
+Rendering::Texture* Create(const char* filename, const bool& repeat) {
     int            width, height, nb_components;
     unsigned char* data = stbi_load(filename, &width, &height, &nb_components, 0);
 

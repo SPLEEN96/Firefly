@@ -1,6 +1,8 @@
 #pragma once
 #include "FFLY_CORE.h"
 
+#include <glm/glm.hpp>
+
 namespace Firefly {
 namespace Rendering {
 class Shader {
@@ -11,10 +13,10 @@ class Shader {
     void Bind();
     void Unbind();
 
-    void SetUniform1i(const char* name, float x);
-    void SetUniform3fv(const char* name, float x, float y, float z);
+    void SetUniform1i(const char* name, const float& x);
+    void SetUniform3fv(const char* name, const float& x, const float& y, const float& z);
 
-    void SetAPIHandle(uint32 program_handle) {
+    void SetAPIHandle(const uint32& program_handle) {
         if (!initialized) {
             m_handle    = program_handle;
             initialized = true;
@@ -22,7 +24,7 @@ class Shader {
     }
 
   private:
-    uint32 m_handle;
+    uint32 m_handle    = 0;
     bool   initialized = false;
 };
 } // namespace Rendering

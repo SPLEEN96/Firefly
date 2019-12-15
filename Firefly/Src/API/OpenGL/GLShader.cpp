@@ -15,11 +15,12 @@ void Shader::Unbind() {
     glUseProgram(0);
 }
 
-void Shader::SetUniform1i(const char* name, float x) {
+void Shader::SetUniform1i(const char* name, const float& x) {
     glUniform1i(glGetUniformLocation(m_handle, name), x);
 }
 
-void Shader::SetUniform3fv(const char* name, float x, float y, float z) {
+void Shader::SetUniform3fv(const char* name, const float& x, const float& y,
+                           const float& z) {
     float value[3] = {x, y, z};
     glUniform3fv(glGetUniformLocation(m_handle, name), 1, value);
 }
@@ -28,8 +29,9 @@ void Shader::SetUniform3fv(const char* name, float x, float y, float z) {
 /* === FACTORY === */
 namespace Factory {
 namespace Shader {
-std::string ReadShadeSourceCode(const char* file_path, bool vertex = true);
-void SuccessInfo(GLenum test_type, GLuint gl_primitive, const char* primitive_name);
+std::string ReadShadeSourceCode(const char* file_path, const bool& vertex = true);
+void        SuccessInfo(GLenum test_type, const GLuint& gl_primitive,
+                        const char* primitive_name);
 
 Rendering::Shader* Create(const char* file_path) {
     uint32 vertex_shader_handle, fragment_shader_handle, program_handle;
@@ -68,7 +70,7 @@ Rendering::Shader* Create(const char* file_path) {
 }
 
 /* TMP CODE (Ideally will not use any strings) */
-std::string ReadShadeSourceCode(const char* file_path, bool vertex) {
+std::string ReadShadeSourceCode(const char* file_path, const bool& vertex) {
     std::string       shader_source;
     std::stringstream shader_stream;
 
@@ -96,7 +98,8 @@ std::string ReadShadeSourceCode(const char* file_path, bool vertex) {
     return shader_source;
 }
 
-void SuccessInfo(GLenum test_type, GLuint gl_primitive, const char* primitive_name) {
+void SuccessInfo(GLenum test_type, const GLuint& gl_primitive,
+                 const char* primitive_name) {
     int  success;
     char info_log[512];
 

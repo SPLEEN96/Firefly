@@ -10,9 +10,9 @@ class Texture {
 
     // void BindToFramebuffer(Framebuffer* target);
 
-    void Bind(uint32 texture_no = 0);
+    void Bind(const uint32& texture_no = 0);
 
-    void SetAPIHandle(uint32 handle) {
+    void SetAPIHandle(const uint32& handle) {
         if (!initialized) {
             m_handle    = handle;
             initialized = true;
@@ -20,14 +20,14 @@ class Texture {
     }
 
   private:
-    uint32 m_handle;
+    uint32 m_handle    = 0;
     bool   initialized = false;
 };
 } // namespace Rendering
 
 namespace Factory {
 namespace Texture {
-Rendering::Texture* Create(const char* filename, bool repeat);
+Rendering::Texture* Create(const char* filename, const bool& repeat);
 } // namespace Texture
 } // namespace Factory
 

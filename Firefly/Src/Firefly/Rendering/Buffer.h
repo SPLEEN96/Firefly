@@ -6,7 +6,7 @@ namespace Rendering {
 struct VertexAttribute {
     enum AttrType { FLOAT = 0, FLOAT2, FLOAT3, FLOAT4, INT1, INT2, INT3, INT4 };
 
-    VertexAttribute(const char* name, AttrType type, bool to_normalize = false)
+    VertexAttribute(const char* name, AttrType type, const bool& to_normalize = false)
         : Name(name), Type(type), Offset(0), ToNormalize(to_normalize) {}
 
     uint32 GetCount() {
@@ -62,7 +62,7 @@ struct AttributesDescription {
 
     uint32 Size() { return Attributes.size(); }
 
-    VertexAttribute& operator[](uint32 index) { return Attributes[index]; }
+    VertexAttribute& operator[](const uint32& index) { return Attributes[index]; }
 
     std::vector<VertexAttribute> Attributes;
     uint32                       Stride;
@@ -86,7 +86,7 @@ class VertexBuffer {
     }
 
   private:
-    uint32                m_handle;
+    uint32                m_handle = 0;
     AttributesDescription m_layout;
     bool                  initialized = false;
 };
@@ -103,12 +103,12 @@ class IndexBuffer {
 /* === FACTORY === */
 namespace Factory {
 namespace VertexBuffer {
-Rendering::VertexBuffer* Create(float* vertices, uint32 size,
+Rendering::VertexBuffer* Create(float* vertices, const uint32& size,
                                 std::vector<Rendering::VertexAttribute> attributes);
 } // namespace VertexBuffer
 
 namespace IndexBuffer {
-Rendering::IndexBuffer* Create(uint32 indices, uint32 size);
+Rendering::IndexBuffer* Create(const uint32& indices, const uint32& size);
 } // namespace IndexBuffer
 } // namespace Factory
 

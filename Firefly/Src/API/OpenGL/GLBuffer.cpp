@@ -36,7 +36,7 @@ void VertexBuffer::Unbind() const {
 /* === FACTORY === */
 namespace Factory {
 namespace VertexBuffer {
-Rendering::VertexBuffer* Create(float* vertices, uint32 size,
+Rendering::VertexBuffer* Create(float* vertices, const uint32& size,
                                 std::vector<Rendering::VertexAttribute> attributes) {
     uint32                           buffer_handle = 0;
     Rendering::AttributesDescription buffer_layout(attributes);
@@ -68,7 +68,7 @@ Rendering::VertexBuffer* Create(float* vertices, uint32 size,
 } // namespace VertexBuffer
 
 namespace IndexBuffer {
-Rendering::IndexBuffer* Create(uint32 indices, uint32 size) {
+Rendering::IndexBuffer* Create(const uint32& indices, const uint32& size) {
 }
 } // namespace IndexBuffer
 } // namespace Factory

@@ -1,8 +1,17 @@
+/* NOTES
+-Make Create() functions Friend of Class??
+*/
+
 /* TODO
+=== SANDBOX ===
+-No more GLAD (multiparts)
+  -(VAO)
+  -(glDraw)
+
 === ENGINE ===
 !!OKEYY!! Shader Class <--(1) !!OKEYY!!
 -Camera Class <--(3)
--Transform Class <--(4)
+!!OKEYY!! Transform Class <--(4) !! OKEYY !!
 
 === OPENGL PRIMITIVES ===
 -VAO abstraction <-- (5)
