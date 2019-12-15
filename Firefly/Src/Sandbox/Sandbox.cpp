@@ -8,6 +8,9 @@
 
 #include <glad/glad.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 #define FFLY Firefly::Rendering
 
 class TriangleLayer : public Firefly::Layer {
@@ -39,22 +42,32 @@ class TriangleLayer : public Firefly::Layer {
 
         m_texture2 =
             Firefly::Factory::Texture::Create("./Assets/Textures/grey_stone.jpg", false);
+
+        m_view = glm::translate(glm::mat4(1.f), glm::vec3(0.0f, 0.0f, -3.0f));
+        m_projection =
+            glm::perspective(glm::radians(45.0f), 1280.f / 960.f, 0.1f, 100.0f);
     }
 
     virtual void OnDetach() override {}
 
     virtual void OnUpdate() override {
         m_square_shader->Bind();
-        m_square_shader->SetUniform1i("tex", 0);
+        m_square_shader->SetVector1i("tex", 0);
         m_texture->Bind(0);
-        // m_square_shader->SetUniform1i("tex", 1);
-        // m_texture2->Bind(1);
+
+        m_transform.SetPosition(m_position);
+        m_transform.Rotate(m_rotation_angle, new float[3]{0.f, 0.f, 1.f});
+        m_model = m_transform.GetTransformMatrix();
+
+        m_square_shader->SetMatrix4f("model", &m_model[0][0]);
+        m_square_shader->SetMatrix4f("view", &m_view[0][0]);
+        m_square_shader->SetMatrix4f("projection", &m_projection[0][0]);
 
         glBindVertexArray(m_VAO);
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
         m_triangle_shader->Bind();
-        m_triangle_shader->SetUniform3fv("u_color", m_color.x, m_color.y, m_color.z);
+        m_triangle_shader->SetVector3f("u_color", m_color.x, m_color.y, m_color.z);
         glBindVertexArray(m_VAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
@@ -62,7 +75,7 @@ class TriangleLayer : public Firefly::Layer {
     }
 
     virtual void OnImGuiDraw() override {
-        ImGui::ShowStyleEditor();
+        // ImGui::ShowStyleEditor();
 
         bool             show_color_picker = true;
         ImGuiWindowFlags window_flags      = 0;
@@ -84,7 +97,61 @@ class TriangleLayer : public Firefly::Layer {
                                ImVec2(40, 225));
         }
         ImGui::End();
+
+        bool show_transform = true;
+        ImGui::SetNextWindowSize(ImVec2(120, 330), ImGuiCond_FirstUseEver);
+        ImGui::Begin("Transform", &show_transform, window_flags);
+        {
+            ImGui::PushID("Position");
+            for (int i = 0; i < 3; i++) {
+                ImGui::SameLine();
+                ImGui::PushID(i);
+                ImGui::PushStyleColor(ImGuiCol_FrameBg,
+                                      (ImVec4)ImColor::HSV(i / 7.0f, 0.5f, 0.5f));
+                ImGui::PushStyleColor(ImGuiCol_FrameBgHovered,
+                                      (ImVec4)ImColor::HSV(float(i) / 7.0f, 0.6f, 0.3f));
+                ImGui::PushStyleColor(ImGuiCol_FrameBgActive,
+                                      (ImVec4)ImColor::HSV(float(i) / 7.0f, 0.7f, 0.4f));
+                if (i < 2) {
+                    ImGui::VSliderFloat("##", ImVec2(18, 300), &m_position[i], -4.0f,
+                                        4.0f, "");
+                } else {
+                    ImGui::VSliderFloat("##", ImVec2(18, 300), &m_position[i], -15.0f,
+                                        4.0f, "");
+                }
+                if (ImGui::IsItemActive() || ImGui::IsItemHovered())
+                    ImGui::SetTooltip("%.1f", m_position[i]);
+
+                ImGui::PopStyleColor(3);
+                ImGui::PopID();
+            }
+            ImGui::PopID();
+
+            ImGui::SameLine();
+
+            ImGui::PushID("Rotation");
+            {
+                ImGui::PushID(0);
+                ImGui::PushStyleColor(ImGuiCol_FrameBg,
+                                      (ImVec4)ImColor::HSV(0.7f, 0.2f, 0.5f));
+                ImGui::PushStyleColor(ImGuiCol_FrameBgHovered,
+                                      (ImVec4)ImColor::HSV(0.7f, 0.4f, 0.5f));
+                ImGui::PushStyleColor(ImGuiCol_FrameBgActive,
+                                      (ImVec4)ImColor::HSV(0.7f, 0.6f, 0.7f));
+
+                ImGui::VSliderFloat("##", ImVec2(18, 300), &m_rotation_angle, -180.0f,
+                                    180.0f, "");
+                if (ImGui::IsItemActive() || ImGui::IsItemHovered())
+                    ImGui::SetTooltip("%.3f", m_rotation_angle);
+
+                ImGui::PopStyleColor(3);
+                ImGui::PopID();
+            }
+            ImGui::PopID();
+        }
+        ImGui::End();
     }
+
     virtual void OnEvent(Firefly::Event& event) override {}
 
   private:
@@ -92,6 +159,13 @@ class TriangleLayer : public Firefly::Layer {
     FFLY::Shader * m_triangle_shader, *m_square_shader;
     FFLY::Texture *m_texture, *m_texture2;
     ImVec4         m_color = ImVec4(0.4f, 0.f, 0.f, 1.f);
+
+    float           m_position[3]    = {0.f};
+    float           m_rotation_angle = 0.f;
+    FFLY::Transform m_transform;
+    glm::mat4       m_model;
+    glm::mat4       m_view;
+    glm::mat4       m_projection;
 
     float m_quad_vertices[8 * 6] = {
         /* Positions */ /* Colors */ /* TexCoords */
