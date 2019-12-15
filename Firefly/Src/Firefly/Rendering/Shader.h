@@ -13,8 +13,13 @@ class Shader {
     void Bind();
     void Unbind();
 
-    void SetUniform1i(const char* name, const float& x);
-    void SetUniform3fv(const char* name, const float& x, const float& y, const float& z);
+    void SetVector1i(const char* name, const float& x);
+    void SetVector1f(const char* name, const float& x);
+    void SetVector2f(const char* name, const float& x, const float& y);
+    void SetVector3f(const char* name, const float& x, const float& y, const float& z);
+    void SetVector4f(const char* name, const float& x, const float& y, const float& z,
+                     const float& w);
+    void SetMatrix4f(const char* name, float* mat);
 
     void SetAPIHandle(const uint32& program_handle) {
         if (!initialized) {

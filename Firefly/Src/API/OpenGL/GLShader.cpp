@@ -15,15 +15,36 @@ void Shader::Unbind() {
     glUseProgram(0);
 }
 
-void Shader::SetUniform1i(const char* name, const float& x) {
+void Shader::SetVector1i(const char* name, const float& x) {
     glUniform1i(glGetUniformLocation(m_handle, name), x);
 }
 
-void Shader::SetUniform3fv(const char* name, const float& x, const float& y,
-                           const float& z) {
+void Shader::SetVector1f(const char* name, const float& x) {
+    float value[1] = {x};
+    glUniform1fv(glGetUniformLocation(m_handle, name), 1, value);
+}
+
+void Shader::SetVector2f(const char* name, const float& x, const float& y) {
+    float value[2] = {x, y};
+    glUniform2fv(glGetUniformLocation(m_handle, name), 1, value);
+}
+
+void Shader::SetVector3f(const char* name, const float& x, const float& y,
+                         const float& z) {
     float value[3] = {x, y, z};
     glUniform3fv(glGetUniformLocation(m_handle, name), 1, value);
 }
+
+void Shader::SetVector4f(const char* name, const float& x, const float& y,
+                         const float& z, const float& w) {
+    float value[4] = {x, y, z, w};
+    glUniform4fv(glGetUniformLocation(m_handle, name), 1, value);
+}
+
+void Shader::SetMatrix4f(const char* name, float* mat) {
+    glUniformMatrix4fv(glGetUniformLocation(m_handle, name), 1, GL_FALSE, mat);
+}
+
 } // namespace Rendering
 
 /* === FACTORY === */
