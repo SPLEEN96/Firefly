@@ -24,8 +24,9 @@ class VertexArray {
 
   private:
     uint32                    m_handle = 0;
-    std::vector<VertexBuffer> m_vbos;
-    IndexBuffer               m_ibo;
+    std::vector<VertexBuffer> m_vbuffers;
+    IndexBuffer               m_ibuffer;
+	
     bool                      initialized = false;
 };
 } // namespace Rendering

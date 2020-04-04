@@ -29,7 +29,7 @@ class TriangleLayer : public Firefly::Layer {
 
         FFLY::VertexBuffer* vbuffer = Firefly::Factory::VertexBuffer::Create(
             m_quad_vertices, sizeof(m_quad_vertices), vattr);
-        vbuffer->Bind();
+        m_VAO->AddVertexBuffer(*vbuffer);
 
         m_triangle_shader =
             Firefly::Factory::Shader::Create("./Assets/Shaders/TriangleTest");

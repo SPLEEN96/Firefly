@@ -2,6 +2,7 @@
 #ifdef FFLY_API_OPENGL
 #include <glad/glad.h>
 #include "Rendering/VertexArray.h"
+#include "Rendering/Buffer.h"
 
 namespace Firefly {
 namespace Rendering {
@@ -13,19 +14,21 @@ void VertexArray::Unbind() const {
     glBindVertexArray(0);
 }
 
-void VertexArray::AddVertexBuffer(const VertexBuffer& vbo) {
+void VertexArray::AddVertexBuffer(const VertexBuffer& vbuffer) {
+    FFLY_ASSERT(vbuffer.GetLayout().Size(),
+                "VertexArray::AddVertexBuffer() : vbuffer buffer has no layout");
     this->Bind();
-    vbo.Bind();
+    vbuffer.Bind();
 
-    m_vbos.push_back(vbo);
+    m_vbuffers.push_back(vbuffer);
     this->Unbind();
 }
 
-void VertexArray::SetIndexBuffer(const IndexBuffer& ibo) {
+void VertexArray::SetIndexBuffer(const IndexBuffer& ibuffer) {
     this->Bind();
-    //ibo.Bind();
+    // ibuffer.Bind();
 
-    m_ibo = ibo;
+    m_ibuffer = ibuffer;
     this->Unbind();
 }
 } // namespace Rendering

@@ -85,6 +85,8 @@ class VertexBuffer {
         }
     }
 
+    AttributesDescription GetLayout() const { return m_layout; }
+
   private:
     uint32                m_handle = 0;
     AttributesDescription m_layout;
