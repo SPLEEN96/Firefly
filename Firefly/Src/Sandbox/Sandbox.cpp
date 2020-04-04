@@ -19,8 +19,8 @@ class TriangleLayer : public Firefly::Layer {
     ~TriangleLayer() override {}
 
     virtual void OnAttach() override {
-        glGenVertexArrays(1, &m_VAO);
-        glBindVertexArray(m_VAO);
+        m_VAO = Firefly::Factory::VertexArray::Create();
+        m_VAO->Bind();
 
         std::vector<FFLY::VertexAttribute> vattr = {
             FFLY::VertexAttribute("position", FFLY::VertexAttribute::AttrType::FLOAT3),
@@ -63,12 +63,12 @@ class TriangleLayer : public Firefly::Layer {
         m_square_shader->SetMatrix4f("view", &m_view[0][0]);
         m_square_shader->SetMatrix4f("projection", &m_projection[0][0]);
 
-        glBindVertexArray(m_VAO);
+        m_VAO->Bind();
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
         m_triangle_shader->Bind();
         m_triangle_shader->SetVector3f("u_color", m_color.x, m_color.y, m_color.z);
-        glBindVertexArray(m_VAO);
+        m_VAO->Bind();
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
         glBindVertexArray(0);
@@ -155,10 +155,11 @@ class TriangleLayer : public Firefly::Layer {
     virtual void OnEvent(Firefly::Event& event) override {}
 
   private:
-    uint32         m_VAO;
-    FFLY::Shader * m_triangle_shader, *m_square_shader;
-    FFLY::Texture *m_texture, *m_texture2;
-    ImVec4         m_color = ImVec4(0.4f, 0.f, 0.f, 1.f);
+    // uint32         m_VAO;
+    FFLY::VertexArray* m_VAO;
+    FFLY::Shader *     m_triangle_shader, *m_square_shader;
+    FFLY::Texture *    m_texture, *m_texture2;
+    ImVec4             m_color = ImVec4(0.4f, 0.f, 0.f, 1.f);
 
     float           m_position[3]    = {0.f};
     float           m_rotation_angle = 0.f;
