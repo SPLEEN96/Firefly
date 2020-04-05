@@ -1,10 +1,13 @@
 #pragma once
 #include "FFLY_CORE.h"
+#include "VertexArray.h"
 
 namespace Firefly {
 namespace Rendering {
 class RenderBackend {
   public:
+    enum API { none = 0, OPENGL };
+
     RenderBackend();
     ~RenderBackend();
 
@@ -15,9 +18,13 @@ class RenderBackend {
     void ClearBuffers(bool color_buffer = true, bool depth_buffer = false,
                       bool stencil_buffer = false);
 
-    void DrawIndexed();
+    void DrawIndexed(const VertexArray& VAO);
+    void Draw(const VertexArray& VAO, uint vertice_count = 3);
+
+    static API GetAPI() { return s_API; }
 
   private:
+    static API s_API;
 };
 } // namespace Rendering
 

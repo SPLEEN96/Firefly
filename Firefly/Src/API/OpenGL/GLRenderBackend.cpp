@@ -8,6 +8,8 @@
 namespace Firefly {
 namespace Rendering {
 
+RenderBackend::API RenderBackend::s_API = RenderBackend::API::OPENGL;
+
 RenderBackend::RenderBackend() {
 }
 RenderBackend::~RenderBackend() {
@@ -17,6 +19,7 @@ void RenderBackend::InitAPI() {
     FFLY_ASSERT(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress),
                 "Failed to initialize glad.");
 
+    gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
     FFLY_LOG_CORE_INFO("Vendor: {0}", glGetString(GL_VENDOR));
     FFLY_LOG_CORE_INFO("GPU: {0}", glGetString(GL_RENDERER));
     FFLY_LOG_CORE_INFO("OpenGL Version: {0}", glGetString(GL_VERSION));
@@ -43,8 +46,14 @@ void RenderBackend::ClearBuffers(bool color_buffer, bool depth_buffer,
     glClear(flags);
 }
 
-void DrawIndexed() {
+void RenderBackend::Draw(const VertexArray& VAO, uint vertice_count) {
+    VAO.Bind();
+    glDrawArrays(GL_TRIANGLES, 0, vertice_count);
 }
+
+void RenderBackend::DrawIndexed(const VertexArray& VAO) {
+}
+
 } // namespace Rendering
 
 /* === FACTORY === */
