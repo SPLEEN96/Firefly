@@ -52,6 +52,8 @@ void RenderBackend::Draw(const VertexArray& VAO, uint vertice_count) {
 }
 
 void RenderBackend::DrawIndexed(const VertexArray& VAO) {
+    VAO.Bind();
+    glDrawElements(GL_TRIANGLES, VAO.GetVerticeCount(), GL_UNSIGNED_INT, 0);
 }
 
 } // namespace Rendering

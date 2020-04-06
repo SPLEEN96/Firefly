@@ -11,7 +11,7 @@ class Renderer {
     static void BeginScene();
     static void EndScene();
 
-    static void Submit(const VertexArray& VAO, uint vertice_count = 3);
+    static void Submit(const VertexArray& VAO);
 
     static RenderBackend::API GetAPI() { return RenderBackend::GetAPI(); };
 

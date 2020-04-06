@@ -8,8 +8,8 @@ void Renderer::BeginScene() {
 void Renderer::EndScene() {
 }
 
-void Renderer::Submit(const VertexArray& VAO,uint vertice_count) {
-    RenderCommand::Draw(VAO,vertice_count);
+void Renderer::Submit(const VertexArray& VAO) {
+    RenderCommand::Draw(VAO);
 }
 
 } // namespace Rendering

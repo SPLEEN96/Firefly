@@ -12,8 +12,8 @@ class VertexArray {
     void Bind() const;
     void Unbind() const;
 
-    void AddVertexBuffer(const VertexBuffer& vbo);
-    void SetIndexBuffer(const IndexBuffer& ibo);
+    void AddVertexBuffer(VertexBuffer& vbo);
+    void SetIndexBuffer(IndexBuffer& ibo);
 
     void SetAPIHandle(const uint32& handle) {
         if (!initialized) {
@@ -22,12 +22,14 @@ class VertexArray {
         }
     }
 
+    uint32 GetVerticeCount() const { return m_ibuffer->GetVerticeCount(); }
+
   private:
-    uint32                    m_handle = 0;
-    std::vector<VertexBuffer> m_vbuffers;
-    IndexBuffer               m_ibuffer;
-	
-    bool                      initialized = false;
+    uint32                     m_handle = 0;
+    std::vector<VertexBuffer*> m_vbuffers;
+    IndexBuffer*               m_ibuffer;
+
+    bool initialized = false;
 };
 } // namespace Rendering
 

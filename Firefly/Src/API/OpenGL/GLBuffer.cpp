@@ -31,6 +31,12 @@ void VertexBuffer::Unbind() const {
 }
 
 /* === Index Buffer === */
+void IndexBuffer::Bind() const {
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_handle);
+}
+void IndexBuffer::Unbind() const {
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
 } // namespace Rendering
 
 /* === FACTORY === */
@@ -68,7 +74,17 @@ Rendering::VertexBuffer* Create(float* vertices, const uint32& size,
 } // namespace VertexBuffer
 
 namespace IndexBuffer {
-Rendering::IndexBuffer* Create(const uint32& indices, const uint32& size) {
+Rendering::IndexBuffer* Create(const uint32* indices, const uint32& count) {
+    GLuint handle;
+    glGenBuffers(1, &handle);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, handle);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32), indices,
+                 GL_STATIC_DRAW);
+
+    Rendering::IndexBuffer* ibuffer = new Rendering::IndexBuffer();
+    ibuffer->SetAPIHandleAndCount(handle, count);
+
+    return ibuffer;
 }
 } // namespace IndexBuffer
 } // namespace Factory

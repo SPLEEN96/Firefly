@@ -20,11 +20,7 @@ class RenderCommand {
         s_backend->ClearBuffers(color_buffer, depth_buffer, stencil_buffer);
     }
 
-    static void Draw(const VertexArray& VAO, uint vertice_count = 3) {
-        s_backend->Draw(VAO, vertice_count);
-    }
-
-    static void DrawIndexed(const VertexArray& VAO) { s_backend->DrawIndexed(VAO); }
+    static void Draw(const VertexArray& VAO) { s_backend->DrawIndexed(VAO); }
 
   private:
     static std::unique_ptr<RenderBackend> s_backend;

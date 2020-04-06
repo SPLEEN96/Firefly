@@ -95,10 +95,26 @@ class VertexBuffer {
 
 class IndexBuffer {
   public:
+    IndexBuffer() {}
     ~IndexBuffer() {}
 
     void Bind() const;
     void Unbind() const;
+
+    void SetAPIHandleAndCount(const uint32& handle, const uint32 count) {
+        if (!initialized) {
+            m_handle    = handle;
+            m_count     = count;
+            initialized = true;
+        }
+    }
+
+    uint32 GetVerticeCount() { return m_count; }
+
+  private:
+    uint32 m_handle    = 0;
+    uint32 m_count     = 0;
+    bool   initialized = false;
 };
 } // namespace Rendering
 
@@ -110,7 +126,7 @@ Rendering::VertexBuffer* Create(float* vertices, const uint32& size,
 } // namespace VertexBuffer
 
 namespace IndexBuffer {
-Rendering::IndexBuffer* Create(const uint32& indices, const uint32& size);
+Rendering::IndexBuffer* Create(const uint32* indices, const uint32& count);
 } // namespace IndexBuffer
 } // namespace Factory
 

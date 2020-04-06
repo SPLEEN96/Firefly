@@ -14,21 +14,21 @@ void VertexArray::Unbind() const {
     glBindVertexArray(0);
 }
 
-void VertexArray::AddVertexBuffer(const VertexBuffer& vbuffer) {
+void VertexArray::AddVertexBuffer(VertexBuffer& vbuffer) {
     FFLY_ASSERT(vbuffer.GetLayout().Size(),
                 "VertexArray::AddVertexBuffer() : vbuffer buffer has no layout");
     this->Bind();
     vbuffer.Bind();
 
-    m_vbuffers.push_back(vbuffer);
+    m_vbuffers.push_back(&vbuffer);
     this->Unbind();
 }
 
-void VertexArray::SetIndexBuffer(const IndexBuffer& ibuffer) {
+void VertexArray::SetIndexBuffer(IndexBuffer& ibuffer) {
     this->Bind();
-    // ibuffer.Bind();
+    ibuffer.Bind();
 
-    m_ibuffer = ibuffer;
+    m_ibuffer = &ibuffer;
     this->Unbind();
 }
 } // namespace Rendering
