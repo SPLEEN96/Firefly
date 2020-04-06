@@ -1,12 +1,11 @@
 #include "Firefly.h"
+#include "Rendering/Renderer.h"
 
 /* === TEMPORARY === */
 #include <imgui/imgui.h>
 
 #include <imgui/examples/imgui_impl_glfw.h>
 #include <imgui/examples/imgui_impl_opengl3.h>
-
-#include <glad/glad.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -19,6 +18,7 @@ class TriangleLayer : public Firefly::Layer {
     ~TriangleLayer() override {}
 
     virtual void OnAttach() override {
+        /* === TEXTURED QUAD === */
         m_VAO = Firefly::Factory::VertexArray::Create();
         m_VAO->Bind();
 
@@ -31,6 +31,27 @@ class TriangleLayer : public Firefly::Layer {
             m_quad_vertices, sizeof(m_quad_vertices), vattr);
         m_VAO->AddVertexBuffer(*vbuffer);
 
+        FFLY::IndexBuffer* ibuffer =
+            Firefly::Factory::IndexBuffer::Create(m_index_buffer_quad, 6);
+        m_VAO->SetIndexBuffer(*ibuffer);
+
+        /* === COLORED TRIANGLE === */
+        m_VAO_triangle = Firefly::Factory::VertexArray::Create();
+        m_VAO_triangle->Bind();
+
+        std::vector<FFLY::VertexAttribute> vattr_tri = {
+            FFLY::VertexAttribute("position", FFLY::VertexAttribute::AttrType::FLOAT2),
+            FFLY::VertexAttribute("color", FFLY::VertexAttribute::AttrType::FLOAT3)};
+
+        FFLY::VertexBuffer* vbuffer_tri = Firefly::Factory::VertexBuffer::Create(
+            m_triangle_vertices, sizeof(m_triangle_vertices), vattr_tri);
+        m_VAO_triangle->AddVertexBuffer(*vbuffer_tri);
+
+        FFLY::IndexBuffer* ibuffer_tri =
+            Firefly::Factory::IndexBuffer::Create(m_index_buffer_triangle, 3);
+        m_VAO_triangle->SetIndexBuffer(*ibuffer_tri);
+
+        /* === SHADERS === */
         m_triangle_shader =
             Firefly::Factory::Shader::Create("./Assets/Shaders/TriangleTest");
 
@@ -63,15 +84,11 @@ class TriangleLayer : public Firefly::Layer {
         m_square_shader->SetMatrix4f("view", &m_view[0][0]);
         m_square_shader->SetMatrix4f("projection", &m_projection[0][0]);
 
-        m_VAO->Bind();
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+        FFLY::Renderer::Submit(*m_VAO);
 
         m_triangle_shader->Bind();
         m_triangle_shader->SetVector3f("u_color", m_color.x, m_color.y, m_color.z);
-        m_VAO->Bind();
-        glDrawArrays(GL_TRIANGLES, 0, 3);
-
-        glBindVertexArray(0);
+        FFLY::Renderer::Submit(*m_VAO_triangle);
     }
 
     virtual void OnImGuiDraw() override {
@@ -155,8 +172,7 @@ class TriangleLayer : public Firefly::Layer {
     virtual void OnEvent(Firefly::Event& event) override {}
 
   private:
-    // uint32         m_VAO;
-    FFLY::VertexArray* m_VAO;
+    FFLY::VertexArray *m_VAO, *m_VAO_triangle;
     FFLY::Shader *     m_triangle_shader, *m_square_shader;
     FFLY::Texture *    m_texture, *m_texture2;
     ImVec4             m_color = ImVec4(0.4f, 0.f, 0.f, 1.f);
@@ -168,7 +184,7 @@ class TriangleLayer : public Firefly::Layer {
     glm::mat4       m_view;
     glm::mat4       m_projection;
 
-    float m_quad_vertices[8 * 6] = {
+    float m_quad_vertices[8 * 4] = {
         /* Positions */ /* Colors */ /* TexCoords */
         0.5f,
         0.5f,
@@ -194,14 +210,6 @@ class TriangleLayer : public Firefly::Layer {
         1.0f,
         0.0f,
         0.0f, /* bottom left */
-        0.5f,
-        0.5f,
-        0.0f,
-        1.0f,
-        0.0f,
-        0.0f,
-        1.0f,
-        1.0f, /* top right */
         -0.5f,
         0.5f,
         0.0f,
@@ -210,15 +218,9 @@ class TriangleLayer : public Firefly::Layer {
         0.0f,
         0.0f,
         1.0f, /* top left */
-        -0.5f,
-        -0.5f,
-        0.0f,
-        0.0f,
-        0.0f,
-        1.0f,
-        0.0f,
-        0.0f, /* bottom left */
     };
+
+    uint32 m_index_buffer_quad[6] = {0, 1, 3, 1, 2, 3};
 
     float m_triangle_vertices[6 * 3] = {/* Positions */ /* Colors */
                                         -0.5f,
@@ -236,6 +238,8 @@ class TriangleLayer : public Firefly::Layer {
                                         0.0f,
                                         0.f,
                                         0.f}; /* top vertex */
+
+    uint32 m_index_buffer_triangle[3] = {1, 2, 0};
 };
 /* =================================================================*/
 
